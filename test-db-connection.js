@@ -1,4 +1,3 @@
-// Database Connection Test Script
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const path = require('path');
@@ -25,35 +24,31 @@ if (!process.env.MONGODB_URI) {
   }
 }
 
-// Get MongoDB URI from environment variables
+// Get MongoDB URI
 const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/techtrainer';
 
 console.log('Testing database connection...');
 console.log(`Attempting to connect to: ${mongoUri ? mongoUri.replace(/\/\/([^:]+):[^@]+@/, '//***:***@') : 'UNDEFINED_CONNECTION_STRING'}`);
 
-// Connect to the database
-mongoose.connect(mongoUri)
+// Extended timeout options
+mongoose.connect(mongoUri, {
+  serverSelectionTimeoutMS: 40000,
+  connectTimeoutMS: 40000
+})
 .then(async conn => {
   console.log('\n✅ SUCCESS: Connected to MongoDB!');
   console.log(`Host: ${conn.connection.host}`);
   console.log(`Database: ${conn.connection.db.databaseName}`);
   
-  // List collections
   const collections = await conn.connection.db.listCollections().toArray();
-  
   console.log('\nAvailable collections:');
-  if (collections.length) {
-    collections.forEach(collection => {
-      console.log(`- ${collection.name}`);
-    });
-  } else {
-    console.log('No collections found (empty database)');
-  }
-  
-  // Check for users collection or create a sample record
+  collections.length
+    ? collections.forEach(c => console.log(`- ${c.name}`))
+    : console.log('No collections found (empty database)');
+
   const userCount = await conn.connection.db.collection('users').countDocuments();
   console.log(`\nUsers in database: ${userCount}`);
-  
+
   if (userCount === 0) {
     console.log('\nCreating a sample user...');
     await conn.connection.db.collection('users').insertOne({
@@ -65,21 +60,20 @@ mongoose.connect(mongoUri)
     });
     console.log('Sample user created successfully!');
   }
-  
-  // Done
+
   console.log('\nDatabase connection test completed successfully!');
   process.exit(0);
 })
 .catch(err => {
   console.error('\n❌ ERROR: Failed to connect to MongoDB');
   console.error(err);
-  
+
   if (err.code === 'ECONNREFUSED') {
     console.log('\nTips:');
-    console.log('1. Make sure MongoDB is installed and running');
-    console.log('2. Check if the MongoDB URI in your .env file is correct');
-    console.log('3. If using MongoDB Atlas, check your network/firewall settings');
+    console.log('1. Ensure MongoDB is installed and running');
+    console.log('2. Verify the MongoDB URI in your .env file');
+    console.log('3. If using Atlas, check IP whitelist and network access');
   }
-  
+
   process.exit(1);
 });

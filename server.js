@@ -28,15 +28,15 @@ if (!uri) {
   process.exit(1);
 }
 
-// MongoDB Client with enhanced options
+// MongoDB Client with extended timeout settings
 const client = new MongoClient(uri, {
   serverApi: {
     version: ServerApiVersion.v1,
     strict: true,
     deprecationErrors: true
   },
-  serverSelectionTimeoutMS: 10000,
-  connectTimeoutMS: 30000,
+  serverSelectionTimeoutMS: 40000, // Increased timeout to 40 seconds
+  connectTimeoutMS: 40000,         // Match timeout to 40 seconds
   maxPoolSize: 10,
   retryWrites: true,
   w: 'majority'
