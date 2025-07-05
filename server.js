@@ -43,16 +43,18 @@ mongoose.connect(uri, {
   process.exit(1);
 });
 
-// Routes
-const authRoutes = require('./routes/authRoutes');
-const userRoutes = require('./routes/userRoutes');
-const workoutRoutes = require('./routes/workoutRoutes');
-const chatRoutes = require('./routes/chatRoutes');
-const workoutLogRoutes = require('./routes/WorkoutLogRoutes');
+// Routes (make sure these files exist in src/routes)
+const authRoutes = require('./src/routes/authRoutes');
+const userRoutes = require('./src/routes/userRoutes');
+const workoutRoutes = require('./src/routes/workoutRoutes');
+const trainerRoutes = require('./src/routes/trainerRoutes');
+const chatRoutes = require('./src/routes/chatRoutes');
+const workoutLogRoutes = require('./src/routes/WorkoutLogRoutes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/workouts', workoutRoutes);
+app.use('/api/trainers', trainerRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/workout-logs', workoutLogRoutes);
 
@@ -88,7 +90,7 @@ app.use((err, req, res, next) => {
 });
 
 // Start server
-const PORT = process.env.PORT || 10000;
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
 });

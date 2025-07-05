@@ -1,99 +1,161 @@
-require('dotenv').config();
 const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
-const helmet = require('helmet');
-const morgan = require('morgan');
+const jwt = require('jsonwebtoken');
+const _ = require('lodash');
+const User = require('../models/User');
+const auth = require('../middleware/auth');
 
-const app = express();
+const router = express.Router();
 
-// Middleware
-app.use(helmet());
-app.use(cors({
-  origin: '*',
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-  credentials: true,
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  optionsSuccessStatus: 204
-}));
-app.use(morgan('dev'));
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+// Generate JWT token
+const generateToken = (userId) =>
+  jwt.sign({ userId }, process.env.JWT_SECRET || 'techtrainer_secret', {
+    expiresIn: process.env.JWT_EXPIRES_IN || '7d',
+  });
 
-// MongoDB connection URI
-const uri = process.env.MONGO_URI;
-if (!uri) {
-  console.error("❌ MONGO_URI is not defined in .env");
-  process.exit(1);
-}
-
-async function startServer() {
+/**
+ * @route   POST /api/auth/register
+ * @desc    Register a new user
+ * @access  Public
+ */
+router.post('/register', async (req, res) => {
   try {
-    console.log('🔄 Connecting to MongoDB via Mongoose...');
-    await mongoose.connect(uri, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      serverSelectionTimeoutMS: 40000,
-      connectTimeoutMS: 40000
-    });
-    console.log('✅ Connected to MongoDB via Mongoose');
+    const { name, email, password, fitnessLevel } = req.body;
 
-    // Routes
-    const authRoutes = require('./src/routes/authRoutes');
-    const userRoutes = require('./src/routes/userRoutes');
-    const workoutRoutes = require('./src/routes/workoutRoutes');
-    const trainerRoutes = require('./src/routes/trainerRoutes');
-    const chatRoutes = require('./src/routes/chatRoutes');
-    const workoutLogRoutes = require('./src/routes/WorkoutLogRoutes');
+    if (!name || !email || !password) {
+      return res.status(400).json({ status: 'error', message: 'All fields are required' });
+    }
 
-    app.use('/api/auth', authRoutes);
-    app.use('/api/users', userRoutes);
-    app.use('/api/workouts', workoutRoutes);
-    app.use('/api/trainers', trainerRoutes);
-    app.use('/api/chat', chatRoutes);
-    app.use('/api/workout-logs', workoutLogRoutes);
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ status: 'error', message: 'User already exists' });
+    }
 
-    // Health check
-    app.get('/api/health', (_, res) => {
-      res.status(200).json({
-        status: 'ok',
-        message: 'API is running',
-        time: new Date().toISOString()
-      });
+    const user = new User({
+      name: name.trim(),
+      email: email.toLowerCase().trim(),
+      password,
+      fitnessLevel: fitnessLevel || 'beginner',
     });
 
-    app.get('/', (_, res) => {
-      res.json({ message: 'Welcome to TechTrainer API' });
-    });
+    await user.save();
 
-    // 404 handler
-    app.use('*', (req, res) => {
-      res.status(404).json({
-        status: 'error',
-        message: `Route ${req.originalUrl} not found`
-      });
-    });
+    const token = generateToken(user._id);
+    const userResponse = _.omit(user.toObject(), ['password']);
 
-    // Global error handler
-    app.use((err, req, res, next) => {
-      console.error('🔥 Server Error:', err);
-      res.status(err.statusCode || 500).json({
-        status: 'error',
-        message: err.message || 'Internal Server Error'
-      });
+    res.status(201).json({
+      status: 'success',
+      message: 'User registered successfully',
+      data: { user: userResponse, token },
     });
-
-    const PORT = process.env.PORT || 5000;
-    app.listen(PORT, () => {
-      console.log(`🚀 Server running on http://localhost:${PORT}`);
-    });
-
-  } catch (err) {
-    console.error('❌ Failed to start server:', err.message);
-    process.exit(1);
+  } catch (error) {
+    console.error('Registration error:', error);
+    res.status(500).json({ status: 'error', message: error.message || 'Registration failed' });
   }
-}
+});
 
-startServer();
+/**
+ * @route   POST /api/auth/login
+ * @desc    Login user
+ * @access  Public
+ */
+router.post('/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
 
-module.exports = app;
+    if (!email || !password) {
+      return res.status(400).json({ status: 'error', message: 'Email and password required' });
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase().trim() }).select('+password');
+    if (!user || !(await user.comparePassword(password))) {
+      return res.status(401).json({ status: 'error', message: 'Invalid credentials' });
+    }
+
+    user.lastLogin = new Date();
+    await user.save();
+
+    const token = generateToken(user._id);
+    const userResponse = _.omit(user.toObject(), ['password']);
+
+    res.json({
+      status: 'success',
+      message: 'Login successful',
+      data: { user: userResponse, token },
+    });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ status: 'error', message: 'Login failed' });
+  }
+});
+
+/**
+ * @route   GET /api/auth/me
+ * @desc    Get current logged in user
+ * @access  Private
+ */
+router.get('/me', auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('-password');
+    if (!user) {
+      return res.status(404).json({ status: 'error', message: 'User not found' });
+    }
+
+    res.json({ status: 'success', data: { user } });
+  } catch (error) {
+    console.error('Get user error:', error);
+    res.status(500).json({ status: 'error', message: 'Failed to get user' });
+  }
+});
+
+/**
+ * @route   PUT /api/auth/profile
+ * @desc    Update user profile
+ * @access  Private
+ */
+router.put('/profile', auth, async (req, res) => {
+  try {
+    const allowedUpdates = ['name', 'profile', 'preferences', 'fitnessLevel'];
+    const updates = _.pick(req.body, allowedUpdates);
+
+    const user = await User.findByIdAndUpdate(req.user.id, { $set: updates }, { new: true, runValidators: true }).select('-password');
+
+    if (!user) {
+      return res.status(404).json({ status: 'error', message: 'User not found' });
+    }
+
+    res.json({ status: 'success', message: 'Profile updated', data: { user } });
+  } catch (error) {
+    console.error('Profile update error:', error);
+    res.status(400).json({ status: 'error', message: error.message || 'Profile update failed' });
+  }
+});
+
+/**
+ * @route   POST /api/auth/change-password
+ * @desc    Change password
+ * @access  Private
+ */
+router.post('/change-password', auth, async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ status: 'error', message: 'Current and new passwords required' });
+    }
+
+    const user = await User.findById(req.user.id).select('+password');
+    if (!user || !(await user.comparePassword(currentPassword))) {
+      return res.status(401).json({ status: 'error', message: 'Incorrect current password' });
+    }
+
+    user.password = newPassword;
+    await user.save();
+
+    res.json({ status: 'success', message: 'Password changed successfully' });
+  } catch (error) {
+    console.error('Change password error:', error);
+    res.status(500).json({ status: 'error', message: 'Password change failed' });
+  }
+});
+
+module.exports = router;
