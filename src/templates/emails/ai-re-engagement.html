@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>We Miss You at TechTrainers!</title>
+    <style>
+      body {
+        font-family: "Arial", sans-serif;
+        line-height: 1.6;
+        color: #333;
+        max-width: 600px;
+        margin: 0 auto;
+        background-color: #f8f9fa;
+      }
+      .container {
+        background-color: white;
+        margin: 20px;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+      .header {
+        background: linear-gradient(135deg, #ff6b6b 0%, #ffa726 100%);
+        color: white;
+        padding: 30px;
+        text-align: center;
+      }
+      .header h1 {
+        margin: 0;
+        font-size: 28px;
+      }
+      .content {
+        padding: 30px;
+      }
+      .comeback-special {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 25px;
+        border-radius: 8px;
+        margin: 20px 0;
+        text-align: center;
+      }
+      .quick-workouts {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        margin: 20px 0;
+      }
+      .workout-item {
+        padding: 10px 0;
+        border-bottom: 1px solid #e9ecef;
+      }
+      .workout-item:last-child {
+        border-bottom: none;
+      }
+      .cta-button {
+        display: inline-block;
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        padding: 15px 30px;
+        text-decoration: none;
+        border-radius: 25px;
+        margin: 20px 0;
+        font-weight: bold;
+      }
+      .footer {
+        background-color: #f8f9fa;
+        padding: 20px;
+        text-align: center;
+        font-size: 14px;
+        color: #666;
+      }
+      .center {
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>🤗 We Miss You, {{userName}}!</h1>
+        <p>Your fitness journey is waiting for you</p>
+      </div>
+
+      <div class="content">
+        <p>Hi {{userName}},</p>
+
+        <p>
+          We noticed it's been
+          <strong>{{daysSinceLastWorkout}} days</strong> since your last
+          workout, and we wanted to reach out with some love and encouragement!
+          💙
+        </p>
+
+        <p>
+          Life gets busy - we totally get it! But remember, even small steps
+          count toward your fitness goals. You don't need to be perfect; you
+          just need to start again.
+        </p>
+
+        <div class="comeback-special">
+          <h3>🎁 Welcome Back Special!</h3>
+          <p>{{specialOffer}}</p>
+          <p><strong>Use code: COMEBACK2024</strong></p>
+        </div>
+
+        <h3>🏃‍♀️ Quick Comeback Workouts (10-15 minutes):</h3>
+        <div class="quick-workouts">
+          <div class="workout-item">
+            <strong>Energy Booster:</strong> 5 minutes of jumping jacks,
+            bodyweight squats, and stretching
+          </div>
+          <div class="workout-item">
+            <strong>Strength Refresher:</strong> 10 push-ups, 20 squats,
+            30-second plank (repeat 2-3 times)
+          </div>
+          <div class="workout-item">
+            <strong>Stress Reliever:</strong> 10 minutes of yoga flow and deep
+            breathing
+          </div>
+          <div class="workout-item">
+            <strong>Cardio Kickstart:</strong> 15 minutes of your favorite music
+            + dancing or walking
+          </div>
+        </div>
+
+        <div class="center">
+          <a href="{{quickWorkoutUrl}}" class="cta-button"
+            >Start a Quick Workout →</a
+          >
+        </div>
+
+        <h3>💪 Gentle Reminders:</h3>
+        <ul>
+          <li>
+            Progress isn't always linear - setbacks are part of the journey
+          </li>
+          <li>Every workout counts, no matter how short</li>
+          <li>Your TechTrainers community is here to support you</li>
+          <li>
+            Our AI assistant is available 24/7 for motivation and guidance
+          </li>
+        </ul>
+
+        <p><strong>AI Motivation:</strong> <em>"{{aiMotivation}}"</em></p>
+
+        <p>{{personalizedMessage}}</p>
+
+        <p>
+          We believe in you, {{userName}}! Your goals are still achievable, and
+          we're here to help you every step of the way. Whether it's booking a
+          session with one of our amazing trainers, trying a quick workout, or
+          just checking in with our AI assistant - we're here for you.
+        </p>
+
+        <div class="center">
+          <a href="{{trainerBookingUrl}}" class="cta-button"
+            >Book a Trainer Session</a
+          >
+        </div>
+
+        <p>Ready to get back on track? We're cheering you on! 🎉</p>
+
+        <p>
+          With love and support,<br />
+          <strong>Your TechTrainers Family</strong>
+        </p>
+      </div>
+
+      <div class="footer">
+        <p>TechTrainers - Always Here When You're Ready</p>
+        <p>📧 support@techtrainers.ca | 🌐 www.techtrainers.ca</p>
+        <p>
+          <a href="{{unsubscribeUrl}}">Unsubscribe</a> |
+          <a href="{{preferencesUrl}}">Email Preferences</a>
+        </p>
+      </div>
+    </div>
+  </body>
+</html>
