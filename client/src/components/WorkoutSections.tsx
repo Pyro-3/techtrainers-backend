@@ -38,7 +38,7 @@ const WorkoutSections: React.FC<WorkoutSectionsProps> = ({
         )}
 
         {activeSection === 'advanced' && (
-          <AdvancedWorkouts onExerciseClick={onExerciseClick} />
+          <AdvancedWorkouts />
         )}
       </div>
     </section>
@@ -46,3 +46,4 @@ const WorkoutSections: React.FC<WorkoutSectionsProps> = ({
 };
 
 export default WorkoutSections;
+

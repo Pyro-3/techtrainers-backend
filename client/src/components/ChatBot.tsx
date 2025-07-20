@@ -28,7 +28,7 @@ const ChatBot = ({ onClose }: ChatBotProps) => {
     pricing: "Our pricing varies by tier: Beginner (Free), Intermediate ($29/month), Advanced ($49/month with personal trainer access).",
     features: "TechTrainer offers workout plans, progress tracking, nutrition guidance, and personal trainer support depending on your tier.",
     support: "For technical support, please email us at support@techtrainer.com or use this chat for immediate assistance.",
-    default: "I understand you're asking about that. Let me connect you with our support team for detailed assistance. You can also email us at admin@techtrainer.com"
+    default: "I understand you're asking about that. Let me connect you with our support team for detailed assistance. You can also email us at support@techtrainer.com"
   };
 
   const getBotResponse = (userMessage: string): string => {

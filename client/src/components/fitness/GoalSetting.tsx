@@ -12,31 +12,7 @@ interface Goal {
 }
 
 // Mock goals data - in a real app, this would come from your API
-const initialGoals: Goal[] = [
-  {
-    id: '1',
-    title: 'Increase bench press max',
-    description: 'Reach 100kg bench press',
-    targetDate: '2025-10-15',
-    progress: 75,
-    category: 'strength'
-  },
-  {
-    id: '2',
-    title: 'Complete 5km run under 25 minutes',
-    targetDate: '2025-08-30',
-    progress: 60,
-    category: 'cardio'
-  },
-  {
-    id: '3',
-    title: 'Lose 5kg',
-    description: 'Reach target weight of 75kg',
-    targetDate: '2025-09-20',
-    progress: 40,
-    category: 'weight'
-  }
-];
+const initialGoals: Goal[] = [];
 
 const categoryIcons: Record<string, JSX.Element> = {
   strength: (

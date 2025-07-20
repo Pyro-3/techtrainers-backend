@@ -15,6 +15,17 @@ export interface Exercise {
   video: string;
 }
 
+export interface Workout {
+  id: string;
+  exerciseName: string;
+  sets: number;
+  reps: number;
+  weight?: number;
+  date: string;
+  userId?: string;      // ← make this optional
+}
+
+
 // Remove the mapped interface that was causing issues
 // Replace with a simpler type definition using Record
 export type WorkoutPlan = Record<MuscleGroup, string[]>;

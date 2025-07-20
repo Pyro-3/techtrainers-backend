@@ -7,7 +7,7 @@ const Contact: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    window.location.href = `mailto:ttt@tirothetyrant.com?subject=Contact from TechTrainer&body=${encodeURIComponent(message)}`;
+    window.location.href = `mailto:info@techtrainers.ca?subject=Contact from TechTrainer&body=${encodeURIComponent(message)}`;
   };
 
   return (

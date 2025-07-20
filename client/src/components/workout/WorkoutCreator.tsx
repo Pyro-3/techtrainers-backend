@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { PlusCircle, X, Save, ArrowRight } from 'lucide-react';
 import { workoutAPI } from '../../services/api';
+import { useNavigate } from 'react-router-dom';
+
 
 interface Exercise {
   id: string;
@@ -41,13 +43,14 @@ const WorkoutCreator = ({ onComplete }: { onComplete?: () => void }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  
+  const navigate = useNavigate();
+
   // Workout details
   const [workoutName, setWorkoutName] = useState('');
   const [workoutType, setWorkoutType] = useState('strength');
   const [workoutDifficulty, setWorkoutDifficulty] = useState('beginner');
   const [workoutDuration, setWorkoutDuration] = useState(45);
-  
+
   // Exercises
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [currentExercise, setCurrentExercise] = useState<Exercise>({
@@ -58,41 +61,41 @@ const WorkoutCreator = ({ onComplete }: { onComplete?: () => void }) => {
     sets: [{ reps: 10, weight: null, duration: null, restTime: 60 }],
     notes: ''
   });
-  
+
   const addSet = () => {
     setCurrentExercise({
       ...currentExercise,
       sets: [...currentExercise.sets, { reps: 10, weight: null, duration: null, restTime: 60 }]
     });
   };
-  
+
   const removeSet = (index: number) => {
     setCurrentExercise({
       ...currentExercise,
       sets: currentExercise.sets.filter((_, i) => i !== index)
     });
   };
-  
+
   const updateSet = (index: number, field: string, value: string | number) => {
     const newSets = [...currentExercise.sets];
     newSets[index] = {
       ...newSets[index],
-      [field]: field === 'reps' || field === 'restTime' ? parseInt(value as string) || 0 : 
-               field === 'weight' || field === 'duration' ? parseFloat(value as string) || null : value
+      [field]: field === 'reps' || field === 'restTime' ? parseInt(value as string) || 0 :
+        field === 'weight' || field === 'duration' ? parseFloat(value as string) || null : value
     };
-    
+
     setCurrentExercise({
       ...currentExercise,
       sets: newSets
     });
   };
-  
+
   const addExercise = () => {
     if (!currentExercise.name.trim()) {
       setError('Exercise name is required');
       return;
     }
-    
+
     setExercises([...exercises, currentExercise]);
     setCurrentExercise({
       id: Date.now().toString(),
@@ -104,27 +107,27 @@ const WorkoutCreator = ({ onComplete }: { onComplete?: () => void }) => {
     });
     setError(null);
   };
-  
+
   const removeExercise = (id: string) => {
     setExercises(exercises.filter(ex => ex.id !== id));
   };
-  
+
   const handleExerciseChange = (field: string, value: string) => {
     setCurrentExercise({
       ...currentExercise,
       [field]: value
     });
   };
-  
+
   const handleSubmit = async () => {
     if (exercises.length === 0) {
       setError('Please add at least one exercise');
       return;
     }
-    
+
     setLoading(true);
     setError(null);
-    
+
     try {
       // Format data for API
       const workoutData = {
@@ -140,13 +143,13 @@ const WorkoutCreator = ({ onComplete }: { onComplete?: () => void }) => {
           notes: ex.notes
         }))
       };
-      
+
       await workoutAPI.createWorkout(workoutData);
       setSuccess(true);
       setTimeout(() => {
         if (onComplete) onComplete();
       }, 1500);
-      
+
     } catch (err: any) {
       console.error('Error creating workout:', err);
       setError(err.response?.data?.message || 'Failed to create workout');
@@ -154,7 +157,7 @@ const WorkoutCreator = ({ onComplete }: { onComplete?: () => void }) => {
       setLoading(false);
     }
   };
-  
+
   const nextStep = () => {
     if (step === 1) {
       if (!workoutName.trim()) {
@@ -165,11 +168,11 @@ const WorkoutCreator = ({ onComplete }: { onComplete?: () => void }) => {
     }
     setStep(step + 1);
   };
-  
+
   const prevStep = () => {
     setStep(step - 1);
   };
-  
+
   if (success) {
     return (
       <div className="flex flex-col items-center justify-center p-8 bg-white rounded-2xl shadow-sm">
@@ -193,21 +196,21 @@ const WorkoutCreator = ({ onComplete }: { onComplete?: () => void }) => {
       </div>
     );
   }
-  
+
   return (
     <div className="bg-white rounded-2xl shadow-sm p-6 md:p-8">
       <h2 className="text-2xl font-bold text-stone-800 mb-6">Create New Workout</h2>
-      
+
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
           {error}
         </div>
       )}
-      
+
       {step === 1 && (
         <div className="space-y-6">
           <h3 className="text-lg font-semibold text-stone-800">Workout Details</h3>
-          
+
           <div>
             <label className="block text-stone-600 mb-2" htmlFor="workoutName">
               Workout Name*
@@ -221,7 +224,7 @@ const WorkoutCreator = ({ onComplete }: { onComplete?: () => void }) => {
               placeholder="e.g. Upper Body Strength"
             />
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
               <label className="block text-stone-600 mb-2" htmlFor="workoutType">
@@ -239,7 +242,7 @@ const WorkoutCreator = ({ onComplete }: { onComplete?: () => void }) => {
                 <option value="mixed">Mixed</option>
               </select>
             </div>
-            
+
             <div>
               <label className="block text-stone-600 mb-2" htmlFor="workoutDifficulty">
                 Difficulty
@@ -255,23 +258,27 @@ const WorkoutCreator = ({ onComplete }: { onComplete?: () => void }) => {
                 <option value="advanced">Advanced</option>
               </select>
             </div>
-            
+
             <div>
               <label className="block text-stone-600 mb-2" htmlFor="workoutDuration">
                 Duration (minutes)
               </label>
-              <input
-                type="number"
+              <select
                 id="workoutDuration"
                 value={workoutDuration}
-                onChange={(e) => setWorkoutDuration(parseInt(e.target.value) || 45)}
-                min="5"
-                max="240"
+                onChange={(e) => setWorkoutDuration(parseInt(e.target.value))}
                 className="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-              />
+              >
+                <option value="30">30 minutes</option>
+                <option value="45">45 minutes</option>
+                <option value="60">1 hour</option>
+                <option value="90">1 hr 30 mins</option>
+                <option value="120">2 hours</option>
+              </select>
             </div>
+
           </div>
-          
+
           <div className="pt-6">
             <button
               onClick={nextStep}
@@ -282,7 +289,7 @@ const WorkoutCreator = ({ onComplete }: { onComplete?: () => void }) => {
           </div>
         </div>
       )}
-      
+
       {step === 2 && (
         <div>
           <div className="mb-6">
@@ -291,7 +298,7 @@ const WorkoutCreator = ({ onComplete }: { onComplete?: () => void }) => {
               Add the exercises that make up your workout. For each exercise, you can add multiple sets.
             </p>
           </div>
-          
+
           {exercises.length > 0 && (
             <div className="mb-8">
               <h4 className="font-semibold text-stone-700 mb-3">Exercises ({exercises.length})</h4>
@@ -302,8 +309,8 @@ const WorkoutCreator = ({ onComplete }: { onComplete?: () => void }) => {
                       <div>
                         <h5 className="font-semibold">{exercise.name}</h5>
                         <p className="text-sm text-stone-500">
-                          {muscleGroups.find(m => m.value === exercise.muscleGroup)?.label} • 
-                          {equipmentTypes.find(e => e.value === exercise.equipment)?.label} • 
+                          {muscleGroups.find(m => m.value === exercise.muscleGroup)?.label} •
+                          {equipmentTypes.find(e => e.value === exercise.equipment)?.label} •
                           {exercise.sets.length} {exercise.sets.length === 1 ? 'set' : 'sets'}
                         </p>
                       </div>
@@ -319,10 +326,10 @@ const WorkoutCreator = ({ onComplete }: { onComplete?: () => void }) => {
               </div>
             </div>
           )}
-          
+
           <div className="bg-stone-50 p-4 rounded-lg mb-6">
             <h4 className="font-semibold text-stone-800 mb-4">New Exercise</h4>
-            
+
             <div className="space-y-4">
               <div>
                 <label className="block text-stone-600 mb-2" htmlFor="exerciseName">
@@ -337,7 +344,7 @@ const WorkoutCreator = ({ onComplete }: { onComplete?: () => void }) => {
                   placeholder="e.g. Bench Press"
                 />
               </div>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-stone-600 mb-2" htmlFor="muscleGroup">
@@ -356,7 +363,7 @@ const WorkoutCreator = ({ onComplete }: { onComplete?: () => void }) => {
                     ))}
                   </select>
                 </div>
-                
+
                 <div>
                   <label className="block text-stone-600 mb-2" htmlFor="equipment">
                     Equipment
@@ -375,12 +382,12 @@ const WorkoutCreator = ({ onComplete }: { onComplete?: () => void }) => {
                   </select>
                 </div>
               </div>
-              
+
               <div>
                 <label className="block text-stone-600 mb-2">
                   Sets
                 </label>
-                
+
                 {currentExercise.sets.map((set, index) => (
                   <div key={index} className="grid grid-cols-5 gap-2 mb-2">
                     <div className="col-span-1">
@@ -428,7 +435,7 @@ const WorkoutCreator = ({ onComplete }: { onComplete?: () => void }) => {
                     </div>
                     <div className="flex items-end justify-end">
                       {currentExercise.sets.length > 1 && (
-                        <button 
+                        <button
                           onClick={() => removeSet(index)}
                           className="p-2 bg-red-50 text-red-500 rounded-lg hover:bg-red-100"
                         >
@@ -438,15 +445,15 @@ const WorkoutCreator = ({ onComplete }: { onComplete?: () => void }) => {
                     </div>
                   </div>
                 ))}
-                
-                <button 
+
+                <button
                   onClick={addSet}
                   className="flex items-center mt-2 text-amber-700 hover:text-amber-800"
                 >
                   <PlusCircle size={18} className="mr-1" /> Add Another Set
                 </button>
               </div>
-              
+
               <div>
                 <label className="block text-stone-600 mb-2" htmlFor="notes">
                   Notes
@@ -460,7 +467,7 @@ const WorkoutCreator = ({ onComplete }: { onComplete?: () => void }) => {
                   rows={2}
                 ></textarea>
               </div>
-              
+
               <button
                 onClick={addExercise}
                 className="flex items-center justify-center w-full bg-stone-700 hover:bg-stone-800 text-white px-4 py-2 rounded-lg transition-colors duration-300"
@@ -469,7 +476,7 @@ const WorkoutCreator = ({ onComplete }: { onComplete?: () => void }) => {
               </button>
             </div>
           </div>
-          
+
           <div className="flex flex-col md:flex-row gap-4 pt-6">
             <button
               onClick={prevStep}
@@ -477,13 +484,12 @@ const WorkoutCreator = ({ onComplete }: { onComplete?: () => void }) => {
             >
               Back to Details
             </button>
-            
+
             <button
               onClick={handleSubmit}
               disabled={loading || exercises.length === 0}
-              className={`flex items-center justify-center flex-1 bg-amber-700 hover:bg-amber-800 text-white px-6 py-3 rounded-lg transition-colors duration-300 ${
-                loading || exercises.length === 0 ? 'opacity-60 cursor-not-allowed' : ''
-              }`}
+              className={`flex items-center justify-center flex-1 bg-amber-700 hover:bg-amber-800 text-white px-6 py-3 rounded-lg transition-colors duration-300 ${loading || exercises.length === 0 ? 'opacity-60 cursor-not-allowed' : ''
+                }`}
             >
               {loading ? (
                 <>
