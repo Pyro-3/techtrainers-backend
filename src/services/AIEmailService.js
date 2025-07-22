@@ -4,6 +4,11 @@ const sendEmail = async ({ to, subject, template, data }) => {
   console.log(`📧 Subject: ${subject}`);
   return { success: true, messageId: "mock-" + Date.now() };
 };
+const sendEmail = async ({ to, subject, template, data }) => {
+  console.log(`📧 Email would be sent to: ${to}`);
+  console.log(`📧 Subject: ${subject}`);
+  return { success: true, messageId: "mock-" + Date.now() };
+};
 const User = require("../models/User");
 const WorkoutLog = require("../models/WorkoutLog");
 
