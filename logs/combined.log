@@ -157,3 +157,20 @@ MongoParseError: option buffermaxentries is not supported
     at Object.<anonymous> (/Users/j/Downloads/project3/server.js:290:1)
     at Module._compile (node:internal/modules/cjs/loader:1730:14)
     at Object..js (node:internal/modules/cjs/loader:1895:10)
+2025-07-22 13:40:16 [server] [INFO]: 🚀 TechTrainer Server running on port 5000
+2025-07-22 13:40:16 [database] [INFO]: 🔄 Connecting to MongoDB...
+2025-07-22 13:40:16 [server] [INFO]: 🌍 Environment: development
+2025-07-22 13:40:16 [server] [INFO]: 📚 API Documentation: http://localhost:5000/api/docs
+2025-07-22 13:40:16 [server] [ERROR]: Database connection failed: option buffermaxentries is not supported {"errorLabelSet":{}}
+MongoParseError: option buffermaxentries is not supported
+    at parseOptions (/Users/j/Downloads/project3/node_modules/mongodb/lib/connection_string.js:278:15)
+    at new MongoClient (/Users/j/Downloads/project3/node_modules/mongodb/lib/mongo_client.js:65:61)
+    at NativeConnection.createClient (/Users/j/Downloads/project3/node_modules/mongoose/lib/drivers/node-mongodb-native/connection.js:343:14)
+    at NativeConnection.openUri (/Users/j/Downloads/project3/node_modules/mongoose/lib/connection.js:1071:34)
+    at Mongoose.connect (/Users/j/Downloads/project3/node_modules/mongoose/lib/mongoose.js:450:15)
+    at Object.connectDB (/Users/j/Downloads/project3/src/utils/DatabaseHelp.js:34:20)
+    at startServer (/Users/j/Downloads/project3/server.js:123:14)
+    at Object.<anonymous> (/Users/j/Downloads/project3/server.js:290:1)
+    at Module._compile (node:internal/modules/cjs/loader:1730:14)
+    at Object..js (node:internal/modules/cjs/loader:1895:10)
+2025-07-22 13:40:16 [database] [ERROR]: ❌ MongoDB connection failed:
