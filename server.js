@@ -28,7 +28,7 @@ const supportRoutes = require("./src/routes/supportRoutes");
 const trainerRoutes = require("./src/routes/trainerRoutes");
 const chatRoutes = require("./src/routes/chatRoutes");
 const devAuthRoutes = require("./src/routes/devAuthRoutes");
-const appointmentRoutes = require("./src/routes/AppointmentRoutes");
+// const appointmentRoutes = require("./src/routes/AppointmentRoutes"); // COMMENTED OUT - CAUSING dateTimeUtils ERROR
 const paymentRoutes = require("./src/routes/enhancedPaymentRoutes");
 const notificationRoutes = require("./src/routes/NotificationRoutes");
 const adminRoutes = require("./src/routes/AdminRoutes");
@@ -51,7 +51,6 @@ try {
 
 console.log("✅ Utilities loaded");
 
-// Initialize Express
 // Initialize Express
 const app = express();
 console.log("✅ Express app created");
@@ -146,11 +145,12 @@ app.get("/", (req, res) => {
       support: "/api/support",
       trainers: "/api/trainers",
       chat: "/api/chat",
-      appointments: "/api/appointments",
+      // appointments: "/api/appointments", // TEMPORARILY DISABLED
       payments: "/api/payments",
       notifications: "/api/notifications",
       admin: "/api/admin",
     },
+    note: "Appointments temporarily disabled while fixing dateTimeUtils dependency"
   });
 });
 
@@ -160,7 +160,7 @@ app.use("/api/workouts", workoutRoutes);
 app.use("/api/support", supportRoutes);
 app.use("/api/trainers", trainerRoutes);
 app.use("/api/chat", chatRoutes);
-app.use("/api/appointments", appointmentRoutes);
+// app.use("/api/appointments", appointmentRoutes); // COMMENTED OUT - CAUSING dateTimeUtils ERROR
 app.use("/api/payments", paymentRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/admin", adminRoutes);
