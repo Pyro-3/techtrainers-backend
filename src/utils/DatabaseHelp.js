@@ -28,7 +28,7 @@ const connectDB = async () => {
       minPoolSize: 5,
       maxIdleTimeMS: 30000,
       bufferCommands: false,
-      bufferMaxEntries: 0,
+      // bufferMaxEntries: 0, // This option is deprecated
     };
 
     await mongoose.connect(uri, options);
