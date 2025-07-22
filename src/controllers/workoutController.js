@@ -804,6 +804,228 @@ const workoutController = {
         message: error.message || 'Failed to retrieve workout statistics'
       });
     }
+  },
+
+  // Missing function implementations
+  getUserWorkouts: async (req, res) => {
+    // Alias for getWorkouts
+    return workoutController.getWorkouts(req, res);
+  },
+
+  startWorkout: async (req, res) => {
+    try {
+      const userId = req.user._id;
+      const workoutId = req.params.id;
+
+      const workout = await Workout.findOne({ _id: workoutId, userId });
+      if (!workout) {
+        return res.status(404).json({
+          status: 'error',
+          message: 'Workout not found'
+        });
+      }
+
+      workout.status = 'in-progress';
+      workout.startedAt = new Date();
+      await workout.save();
+
+      return res.status(200).json({
+        status: 'success',
+        data: workout,
+        message: 'Workout started successfully'
+      });
+    } catch (error) {
+      console.error('Error in startWorkout:', error);
+      return res.status(500).json({
+        status: 'error',
+        message: error.message || 'Failed to start workout'
+      });
+    }
+  },
+
+  pauseWorkout: async (req, res) => {
+    try {
+      const userId = req.user._id;
+      const workoutId = req.params.id;
+
+      const workout = await Workout.findOne({ _id: workoutId, userId });
+      if (!workout) {
+        return res.status(404).json({
+          status: 'error',
+          message: 'Workout not found'
+        });
+      }
+
+      workout.status = 'paused';
+      workout.pausedAt = new Date();
+      await workout.save();
+
+      return res.status(200).json({
+        status: 'success',
+        data: workout,
+        message: 'Workout paused successfully'
+      });
+    } catch (error) {
+      console.error('Error in pauseWorkout:', error);
+      return res.status(500).json({
+        status: 'error',
+        message: error.message || 'Failed to pause workout'
+      });
+    }
+  },
+
+  shareWorkout: async (req, res) => {
+    try {
+      const userId = req.user._id;
+      const workoutId = req.params.id;
+      const { isPublic } = req.body;
+
+      const workout = await Workout.findOne({ _id: workoutId, userId });
+      if (!workout) {
+        return res.status(404).json({
+          status: 'error',
+          message: 'Workout not found'
+        });
+      }
+
+      workout.isPublic = isPublic || true;
+      await workout.save();
+
+      return res.status(200).json({
+        status: 'success',
+        data: workout,
+        message: 'Workout sharing updated successfully'
+      });
+    } catch (error) {
+      console.error('Error in shareWorkout:', error);
+      return res.status(500).json({
+        status: 'error',
+        message: error.message || 'Failed to update workout sharing'
+      });
+    }
+  },
+
+  getPublicTemplates: async (req, res) => {
+    try {
+      const { type, difficulty, page = 1, limit = 10 } = req.query;
+      const filter = { isPublic: true };
+
+      if (type) filter.type = type;
+      if (difficulty) filter.difficulty = difficulty;
+
+      const workouts = await Workout.find(filter)
+        .populate('userId', 'name')
+        .select('-userId.email')
+        .limit(limit * 1)
+        .skip((page - 1) * limit)
+        .sort({ createdAt: -1 });
+
+      const total = await Workout.countDocuments(filter);
+
+      return res.status(200).json({
+        status: 'success',
+        data: {
+          workouts,
+          pagination: {
+            currentPage: parseInt(page),
+            totalPages: Math.ceil(total / limit),
+            totalItems: total,
+            hasNext: page * limit < total,
+            hasPrev: page > 1
+          }
+        }
+      });
+    } catch (error) {
+      console.error('Error in getPublicTemplates:', error);
+      return res.status(500).json({
+        status: 'error',
+        message: error.message || 'Failed to retrieve public templates'
+      });
+    }
+  },
+
+  cloneWorkout: async (req, res) => {
+    try {
+      const userId = req.user._id;
+      const workoutId = req.params.id;
+
+      const originalWorkout = await Workout.findById(workoutId);
+      if (!originalWorkout) {
+        return res.status(404).json({
+          status: 'error',
+          message: 'Workout not found'
+        });
+      }
+
+      const clonedWorkout = new Workout({
+        userId,
+        title: `${originalWorkout.title} (Copy)`,
+        description: originalWorkout.description,
+        exercises: originalWorkout.exercises,
+        type: originalWorkout.type,
+        difficulty: originalWorkout.difficulty,
+        estimatedDuration: originalWorkout.estimatedDuration,
+        isTemplate: true,
+        status: 'not-started'
+      });
+
+      await clonedWorkout.save();
+
+      return res.status(201).json({
+        status: 'success',
+        data: clonedWorkout,
+        message: 'Workout cloned successfully'
+      });
+    } catch (error) {
+      console.error('Error in cloneWorkout:', error);
+      return res.status(500).json({
+        status: 'error',
+        message: error.message || 'Failed to clone workout'
+      });
+    }
+  },
+
+  getProgressStats: async (req, res) => {
+    try {
+      const userId = req.user._id;
+      const { timeframe = '30' } = req.query;
+      const days = parseInt(timeframe);
+      
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - days);
+
+      const workouts = await Workout.find({
+        userId,
+        completedAt: { $gte: startDate },
+        status: 'completed'
+      }).select('completedAt exercises estimatedDuration actualDuration');
+
+      const progressData = workouts.map(workout => ({
+        date: workout.completedAt,
+        duration: workout.actualDuration || workout.estimatedDuration,
+        exerciseCount: workout.exercises.length
+      }));
+
+      return res.status(200).json({
+        status: 'success',
+        data: {
+          progressData,
+          summary: {
+            totalWorkouts: workouts.length,
+            totalMinutes: progressData.reduce((sum, w) => sum + w.duration, 0),
+            averageDuration: progressData.length > 0 
+              ? Math.round(progressData.reduce((sum, w) => sum + w.duration, 0) / progressData.length)
+              : 0
+          }
+        }
+      });
+    } catch (error) {
+      console.error('Error in getProgressStats:', error);
+      return res.status(500).json({
+        status: 'error',
+        message: error.message || 'Failed to retrieve progress statistics'
+      });
+    }
   }
 };
 

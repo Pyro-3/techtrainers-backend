@@ -16,6 +16,17 @@ const Header = () => {
 
   const { user, logout, isAuthenticated } = useAuth();
 
+  const handleLoginClick = () => {
+    console.log('Login button clicked, current showLoginModal:', showLoginModal);
+    setShowLoginModal(true);
+    console.log('Setting showLoginModal to true');
+  };
+
+  const handleSignupClick = () => {
+    console.log('Signup button clicked');
+    setShowSignupModal(true);
+  };
+
   const handleLogout = () => {
     logout();
     setShowUserMenu(false);
@@ -47,8 +58,8 @@ const Header = () => {
 
             {!isAuthenticated ? (
               <div className="flex items-center space-x-4">
-                <button onClick={() => setShowLoginModal(true)} className="font-medium text-stone-700 hover:text-stone-900">Log In</button>
-                <button onClick={() => setShowSignupModal(true)} className="bg-amber-700 hover:bg-amber-800 text-white px-4 py-2 rounded-full font-medium">Sign Up</button>
+                <button onClick={handleLoginClick} className="font-medium text-stone-700 hover:text-stone-900">Log In</button>
+                <button onClick={handleSignupClick} className="bg-amber-700 hover:bg-amber-800 text-white px-4 py-2 rounded-full font-medium">Sign Up</button>
               </div>
             ) : (
               <div className="relative">
@@ -100,8 +111,8 @@ const Header = () => {
 
             {!isAuthenticated ? (
               <>
-                <button onClick={() => { setShowLoginModal(true); setShowMobileMenu(false); }} className="block text-stone-700 hover:text-stone-900">Log In</button>
-                <button onClick={() => { setShowSignupModal(true); setShowMobileMenu(false); }} className="block bg-amber-700 text-white px-4 py-2 rounded-full">Sign Up</button>
+                <button onClick={() => { handleLoginClick(); setShowMobileMenu(false); }} className="block text-stone-700 hover:text-stone-900">Log In</button>
+                <button onClick={() => { handleSignupClick(); setShowMobileMenu(false); }} className="block bg-amber-700 text-white px-4 py-2 rounded-full">Sign Up</button>
               </>
             ) : (
               <>
@@ -123,7 +134,17 @@ const Header = () => {
 
       {showChatBot && <ChatBot onClose={() => setShowChatBot(false)} />}
       <SignupModal isOpen={showSignupModal} onClose={() => setShowSignupModal(false)} />
-      <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} onSignupClick={() => setShowSignupModal(true)} />
+      <LoginModal 
+        isOpen={showLoginModal} 
+        onClose={() => {
+          console.log('Closing login modal');
+          setShowLoginModal(false);
+        }} 
+        onSignupClick={() => {
+          setShowLoginModal(false);
+          setShowSignupModal(true);
+        }} 
+      />
     </>
   );
 };

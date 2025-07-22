@@ -49,7 +49,7 @@ const IntermediateWorkouts: React.FC = () => {
     } else {
       setLoading(false);
     }
-  }, [user]);
+  }, [user?._id]);
 
   const fetchUserWorkouts = async () => {
     if (!user?._id) {

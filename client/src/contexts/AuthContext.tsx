@@ -82,22 +82,39 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }, []);
 
   const login = async (email: string, password: string) => {
+    console.log('AuthContext: Starting login');
+    console.log('AuthContext: API Base URL:', import.meta.env.VITE_API_URL || 'http://localhost:5000/api');
     setLoading(true);
     setError(null);
 
     try {
+      console.log('AuthContext: Making API call to login endpoint');
       const response = await authAPI.login({ email, password });
+      console.log('AuthContext: API call successful', response.data);
+      
       localStorage.setItem('authToken', response.data.data.token);
       localStorage.setItem('userData', JSON.stringify(response.data.data.user));
       setUser(response.data.data.user);
       setIsAuthenticated(true);
+      console.log('AuthContext: User set, authentication complete');
     } catch (err: any) {
-      setError(
-        err.response?.data?.message ||
-        'Login failed. Please check your credentials and try again.'
-      );
+      console.log('AuthContext: Login error', err);
+      console.log('AuthContext: Error response:', err.response);
+      console.log('AuthContext: Error message:', err.message);
+      console.log('AuthContext: Error code:', err.code);
+      
+      // Check if it's a network error
+      if (err.code === 'ECONNREFUSED' || err.message.includes('Network Error') || !err.response) {
+        setError('Unable to connect to server. Please check if the backend is running on localhost:5000');
+      } else {
+        setError(
+          err.response?.data?.message ||
+          'Login failed. Please check your credentials and try again.'
+        );
+      }
       throw err;
     } finally {
+      console.log('AuthContext: Setting loading to false');
       setLoading(false);
     }
   };

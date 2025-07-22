@@ -881,6 +881,53 @@ const userController = {
       });
     }
   },
+
+  // Get user's email statistics
+  getEmailStats: async (req, res) => {
+    try {
+      const userId = req.user._id;
+      const { days = 30 } = req.query;
+
+      // Get user to get their email
+      const user = await User.findById(userId).select("email");
+      if (!user) {
+        return res.status(404).json({
+          status: "error",
+          message: "User not found",
+        });
+      }
+
+      // Import EmailAnalytics model
+      const EmailAnalytics = require("../models/EmailAnalytics");
+
+      // Get user's email statistics
+      const emailStats = await EmailAnalytics.getUserEmailStats(user.email, parseInt(days));
+
+      // Get recent email activity
+      const recentEmails = await EmailAnalytics.find({
+        recipientEmail: user.email
+      })
+      .sort({ sentAt: -1 })
+      .limit(10)
+      .select('emailType subject status sentAt deliveredAt openedAt clickedAt errorMessage');
+
+      return res.status(200).json({
+        status: "success",
+        data: {
+          stats: emailStats,
+          recentActivity: recentEmails,
+          period: `${days} days`
+        },
+        message: "Email statistics retrieved successfully",
+      });
+    } catch (error) {
+      console.error("Error in getEmailStats:", error);
+      return res.status(500).json({
+        status: "error",
+        message: error.message || "Failed to retrieve email statistics",
+      });
+    }
+  },
 };
 
 // Helper function to calculate workout streaks

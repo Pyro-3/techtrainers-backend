@@ -3,7 +3,7 @@ import axios from 'axios';
 // API Configuration
 const API_BASE_URL = import.meta.env.VITE_API_URL ||
   (import.meta.env.DEV
-    ? 'http://localhost:5000/api'
+    ? 'http://localhost:5000/api'  // Updated to match backend port
     : 'https://your-production-api.com/api');
 
 console.log('API Base URL:', API_BASE_URL);
@@ -41,7 +41,7 @@ api.interceptors.response.use(
 
 // ✅ Auth API
 export const authAPI = {
-  register: (userData: { name: string; email: string; password: string; fitnessLevel?: string }) =>
+  register: (userData: { name: string; email: string; password: string; role?: 'member' | 'trainer'; fitnessLevel?: string }) =>
     api.post('/auth/register', userData),
   login: (credentials: { email: string; password: string }) =>
     api.post('/auth/login', credentials),

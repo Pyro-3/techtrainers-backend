@@ -16,6 +16,7 @@ import AboutPage from './src/pages/AboutPage';
 import SupportPage from './src/pages/SupportPage';
 import TestApiPage from './src/pages/TestApiPage';
 import LoginPage from './src/pages/LoginPage';
+import UnauthorizedPage from './src/pages/UnauthorizedPage';
 
 import DashboardPage from './src/pages/DashboardPage';
 import FitnessPage from './src/pages/FitnessPage';
@@ -25,8 +26,10 @@ import WorkoutCreator from './src/components/workout/WorkoutCreator';
 
 import TrainerDashboardPage from './src/pages/TrainerDashboardPage';
 import TrainerClientDashboard from './src/pages/TrainerClientDashboard';
+import TrainerPendingApprovalPage from './src/pages/TrainerPendingApprovalPage';
 
 import { AuthProvider, useAuth } from './src/contexts/AuthContext';
+import { useRoleBasedRedirect } from './src/utils/useRoleBasedRedirect';
 
 interface ProtectedRouteProps {
   children: JSX.Element;
@@ -55,10 +58,21 @@ const ProtectedRoute = ({
     return <Navigate to="/unauthorized" replace />;
   }
 
+  // Special handling for trainers who aren't approved
+  if (user?.role === 'trainer' && !user?.isApproved) {
+    const currentPath = window.location.pathname;
+    if (currentPath !== '/trainer/pending-approval') {
+      return <Navigate to="/trainer/pending-approval" replace />;
+    }
+  }
+
   return children;
 };
 
 function AppRoutes() {
+  // Use the role-based redirect hook
+  useRoleBasedRedirect();
+  
   return (
     <Routes>
       {/* Public */}
@@ -130,6 +144,22 @@ function AppRoutes() {
 
       {/* Trainer‑only */}
       <Route
+        path="/trainer/pending-approval"
+        element={
+          <ProtectedRoute requiredRole="trainer">
+            <TrainerPendingApprovalPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/trainer/dashboard"
+        element={
+          <ProtectedRoute requiredRole="trainer">
+            <TrainerDashboardPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
         path="/trainer-dashboard"
         element={
           <ProtectedRoute requiredRole="trainer">
@@ -149,11 +179,7 @@ function AppRoutes() {
       {/* Unauthorized */}
       <Route
         path="/unauthorized"
-        element={
-          <div className="text-center pt-32 text-red-600 text-2xl font-bold">
-            Unauthorized: You do not have permission to view this page.
-          </div>
-        }
+        element={<UnauthorizedPage />}
       />
 
       {/* Fallback */}

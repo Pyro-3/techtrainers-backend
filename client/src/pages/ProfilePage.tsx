@@ -34,7 +34,7 @@ const ProfilePage = () => {
       });
       setAvatarPreview((user as any).avatarUrl || null);
     }
-  }, [user]);
+  }, [user?._id, user?.name, user?.email, user?.fitnessLevel, user?.profile?.goals]);
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     setUpdateError(null);

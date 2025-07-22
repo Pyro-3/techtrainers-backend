@@ -107,7 +107,7 @@ const requireRole = (roles) => {
 // Specific role middlewares
 const requireAdmin = requireRole('admin');
 const requireTrainer = requireRole(['trainer', 'admin']);
-const requireUser = requireRole(['user', 'trainer', 'admin']);
+const requireUser = requireRole(['member', 'trainer', 'admin']);
 
 // Approved trainer middleware
 const requireApprovedTrainer = async (req, res, next) => {

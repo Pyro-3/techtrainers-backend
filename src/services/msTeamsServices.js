@@ -7,23 +7,44 @@ const { v4: uuidv4 } = require('uuid');
  * Handles creation and management of Teams meetings
  */
 
+// Check if Microsoft Teams integration is configured
+const isTeamsConfigured = process.env.MS_CLIENT_ID && 
+                          process.env.MS_TENANT_ID && 
+                          process.env.MS_CLIENT_SECRET;
+
+if (!isTeamsConfigured) {
+  console.warn('⚠️ Microsoft Teams credentials not found. Teams meeting features will be disabled.');
+  console.warn('Please set MS_CLIENT_ID, MS_TENANT_ID, and MS_CLIENT_SECRET environment variables to enable Teams integration.');
+}
+
 // Azure AD app configuration
 const msalConfig = {
   auth: {
-    clientId: process.env.MS_CLIENT_ID,
-    authority: `https://login.microsoftonline.com/${process.env.MS_TENANT_ID}`,
-    clientSecret: process.env.MS_CLIENT_SECRET
+    clientId: process.env.MS_CLIENT_ID || 'placeholder',
+    authority: `https://login.microsoftonline.com/${process.env.MS_TENANT_ID || 'placeholder'}`,
+    clientSecret: process.env.MS_CLIENT_SECRET || 'placeholder'
   }
 };
 
-// Initialize MSAL application
-const cca = new msal.ConfidentialClientApplication(msalConfig);
+// Initialize MSAL application only if configured
+let cca = null;
+if (isTeamsConfigured) {
+  try {
+    cca = new msal.ConfidentialClientApplication(msalConfig);
+  } catch (error) {
+    console.error('❌ Failed to initialize Microsoft Teams integration:', error.message);
+  }
+}
 
 /**
  * Get access token for Microsoft Graph API
  * @returns {Promise<string>} Access token
  */
 const getAccessToken = async () => {
+  if (!isTeamsConfigured || !cca) {
+    throw new Error('Microsoft Teams integration is not configured');
+  }
+
   try {
     const tokenRequest = {
       scopes: ['https://graph.microsoft.com/.default']

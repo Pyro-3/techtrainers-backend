@@ -72,13 +72,13 @@ const adminOnly = [authenticate, requireRole("admin")];
 const trainerOnly = [authenticate, requireRole("trainer")];
 
 // User only middleware
-const userOnly = [authenticate, requireRole("user")];
+const userOnly = [authenticate, requireRole("member")];
 
 // Trainer or Admin middleware
 const trainerOrAdmin = [authenticate, requireRole("trainer", "admin")];
 
 // Any authenticated user
-const anyUser = [authenticate, requireRole("user", "trainer", "admin")];
+const anyUser = [authenticate, requireRole("member", "trainer", "admin")];
 
 // Approved trainer only middleware
 const approvedTrainerOnly = [

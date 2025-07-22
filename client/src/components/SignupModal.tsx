@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { getRoleBasedRedirect } from '../utils/roleRedirect';
 
 interface SignupModalProps {
   isOpen: boolean;
@@ -57,8 +58,24 @@ const SignupModal = ({ isOpen, onClose }: SignupModalProps) => {
       };
 
       await signup(payload);
-      setSuccess('Registration successful! Welcome to TechTrainer!');
-      setTimeout(() => onClose(), 2000);
+      
+      // Show success message based on role
+      if (formData.role === 'trainer') {
+        setSuccess('Trainer registration successful! Your application is now under review. Redirecting...');
+      } else {
+        setSuccess('Registration successful! Welcome to TechTrainer!');
+      }
+
+      // Role-based redirect after a short delay
+      setTimeout(() => {
+        onClose();
+        // Get the user data from AuthContext to check approval status
+        const redirectPath = getRoleBasedRedirect(
+          formData.role || 'member', 
+          formData.role === 'member' ? true : false // Trainers start as not approved
+        );
+        window.location.href = redirectPath;
+      }, 2000);
     } catch (err) {
       console.error('Signup failed:', err);
     }

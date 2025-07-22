@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { getRoleBasedRedirect } from '../utils/roleRedirect';
 
 const LoginPage: React.FC = () => {
-  const { login, signup } = useAuth();
+  const { login, signup, user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   const [email, setEmail] = useState('');
@@ -11,6 +12,16 @@ const LoginPage: React.FC = () => {
   const [name, setName] = useState('');
   const [isLoginMode, setIsLoginMode] = useState(true);
   const [error, setError] = useState('');
+  const [justLoggedIn, setJustLoggedIn] = useState(false);
+
+  // Handle navigation after successful login
+  useEffect(() => {
+    if (isAuthenticated && user && justLoggedIn) {
+      const redirectPath = getRoleBasedRedirect(user.role, user.isApproved);
+      navigate(redirectPath);
+      setJustLoggedIn(false);
+    }
+  }, [isAuthenticated, user, justLoggedIn, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,10 +30,11 @@ const LoginPage: React.FC = () => {
     try {
       if (isLoginMode) {
         await login(email, password);
+        setJustLoggedIn(true);
       } else {
         await signup({ name, email, password });
+        navigate('/dashboard');
       }
-      navigate('/dashboard');
     } catch (err: any) {
       setError(err.message || 'Failed to authenticate');
     }

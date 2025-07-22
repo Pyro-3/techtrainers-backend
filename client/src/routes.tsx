@@ -18,6 +18,12 @@ import DashboardPage         from './pages/DashboardPage';
 import ProfilePage           from './pages/ProfilePage';
 import SupportPage           from './pages/SupportPage';
 
+// Trainer
+import TrainerDashboardPage  from './pages/TrainerDashboardPage';
+import TrainerClientDashboard from './pages/TrainerClientDashboard';
+import TrainerProtectedRoute from './components/TrainerProtectedRoute';
+import TrainerPendingApprovalPage from './pages/TrainerPendingApprovalPage';
+
 // Auth & Workouts
 import LoginPage             from './pages/LoginPage';
 import WorkoutCreator        from './components/workout/WorkoutCreator';
@@ -58,13 +64,33 @@ const AppRoutes: React.FC = () => (
       }
     />
 
-    {/* Trainer Dashboard */}
+    {/* Trainer Pending Approval */}
     <Route
-      path="/trainer-dashboard"
+      path="/trainer/pending-approval"
       element={
         <ProtectedRoute requiredRole="trainer">
-          <AdminDashboard /* or your TrainerDashboardPage */ />
+          <TrainerPendingApprovalPage />
         </ProtectedRoute>
+      }
+    />
+
+    {/* Trainer Dashboard */}
+    <Route
+      path="/trainer/dashboard"
+      element={
+        <TrainerProtectedRoute>
+          <TrainerDashboardPage />
+        </TrainerProtectedRoute>
+      }
+    />
+    
+    {/* Trainer Client Management */}
+    <Route
+      path="/trainer/clients/:clientId"
+      element={
+        <TrainerProtectedRoute>
+          <TrainerClientDashboard />
+        </TrainerProtectedRoute>
       }
     />
 
