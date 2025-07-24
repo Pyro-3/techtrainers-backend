@@ -1,0 +1,119 @@
+[
+  {
+    "_id": "0050",
+    "name": "barbell incline shoulder raise",
+    "description": "The barbell incline shoulder raise is performed on an incline bench and targets the serratus anterior, with secondary emphasis on the deltoids and trapezius. The movement involves raising a barbell overhead from shoulder height while seated on an incline bench.",
+    "muscleGroup": "serratus anterior",
+    "type": "strength",
+    "equipment": "barbell",
+    "difficulty": "intermediate",
+    "instructions": [
+      "Set up an incline bench at a 45-degree angle.",
+      "Sit on the bench with your back against the pad and feet flat on the ground.",
+      "Hold a barbell with an overhand grip, slightly wider than shoulder-width apart.",
+      "Lift the barbell up to shoulder height, keeping your elbows slightly bent.",
+      "Slowly raise the barbell overhead, extending your arms fully.",
+      "Pause for a moment at the top, then slowly lower the barbell back to shoulder height.",
+      "Repeat for the desired number of repetitions."
+    ],
+    "imageUrl": "",
+    "videoUrl": "",
+    "createdBy": null,
+    "isPublic": true,
+    "createdAt": null,
+    "updatedAt": null
+  },
+  {
+    "_id": "0328",
+    "name": "dumbbell incline shoulder raise",
+    "description": "The dumbbell incline shoulder raise targets the serratus anterior and also works the deltoids and trapezius. It is performed on an incline bench and involves raising dumbbells above the head while maintaining control and proper form.",
+    "muscleGroup": "serratus anterior",
+    "type": "strength",
+    "equipment": "dumbbell",
+    "difficulty": "intermediate",
+    "instructions": [
+      "Set an incline bench to a 45-degree angle and sit on it with a dumbbell in each hand, palms facing down.",
+      "Rest the dumbbells on your thighs and lean back onto the bench.",
+      "Use your thighs to help raise the dumbbells to shoulder height, then rotate your wrists so that your palms are facing forward.",
+      "Exhale and slowly raise the dumbbells above your head, keeping a slight bend in your elbows.",
+      "Pause for a moment at the top, then inhale and slowly lower the dumbbells back to shoulder height.",
+      "Repeat for the desired number of repetitions."
+    ],
+    "imageUrl": "",
+    "videoUrl": "",
+    "createdBy": null,
+    "isPublic": true,
+    "createdAt": null,
+    "updatedAt": null
+  },
+  {
+    "_id": "0759",
+    "name": "smith incline shoulder raises",
+    "description": "Smith incline shoulder raises target the serratus anterior and are performed on a smith machine. The movement involves raising the barbell upwards while standing at an incline, focusing on shoulder and upper chest engagement.",
+    "muscleGroup": "serratus anterior",
+    "type": "strength",
+    "equipment": "smith machine",
+    "difficulty": "intermediate",
+    "instructions": [
+      "Adjust the smith machine to an incline position.",
+      "Stand facing the machine with your feet shoulder-width apart.",
+      "Grasp the bar with an overhand grip, slightly wider than shoulder-width apart.",
+      "Keep your back straight and core engaged.",
+      "Raise the barbell up towards the ceiling, leading with your elbows.",
+      "Pause for a moment at the top, then slowly lower the barbell back down to the starting position.",
+      "Repeat for the desired number of repetitions."
+    ],
+    "imageUrl": "",
+    "videoUrl": "",
+    "createdBy": null,
+    "isPublic": true,
+    "createdAt": null,
+    "updatedAt": null
+  },
+  {
+    "_id": "3011",
+    "name": "incline scapula push up",
+    "description": "The incline scapula push up is a bodyweight exercise performed on an incline bench that primarily targets the serratus anterior. It also engages the triceps and shoulders. The movement emphasizes scapular retraction and protraction, helping to improve shoulder stability and strength.",
+    "muscleGroup": "serratus anterior",
+    "type": "strength",
+    "equipment": "body weight",
+    "difficulty": "beginner",
+    "instructions": [
+      "Set up an incline bench at a 45-degree angle.",
+      "Place your hands on the bench slightly wider than shoulder-width apart.",
+      "Position your feet on the ground, hip-width apart.",
+      "Lower your chest towards the bench, keeping your elbows tucked in.",
+      "As you lower, retract your shoulder blades, squeezing your scapulae together.",
+      "Push through your palms to extend your arms and return to the starting position.",
+      "Repeat for the desired number of repetitions."
+    ],
+    "imageUrl": "",
+    "videoUrl": "",
+    "createdBy": null,
+    "isPublic": true,
+    "createdAt": null,
+    "updatedAt": null
+  },
+  {
+    "_id": "3021",
+    "name": "scapula push-up",
+    "description": "The scapula push-up is a bodyweight exercise that targets the serratus anterior and helps improve scapular mobility and stability. It is performed in a high plank position, focusing on the movement of the shoulder blades rather than the elbows.",
+    "muscleGroup": "serratus anterior",
+    "type": "mobility",
+    "equipment": "body weight",
+    "difficulty": "beginner",
+    "instructions": [
+      "Start in a high plank position with your hands directly under your shoulders and your body in a straight line.",
+      "Lower your chest towards the ground, keeping your elbows close to your body.",
+      "As you lower, squeeze your shoulder blades together and push your chest forward.",
+      "Pause for a moment at the bottom, then push back up to the starting position.",
+      "Repeat for the desired number of repetitions."
+    ],
+    "imageUrl": "",
+    "videoUrl": "",
+    "createdBy": null,
+    "isPublic": true,
+    "createdAt": null,
+    "updatedAt": null
+  }
+]
