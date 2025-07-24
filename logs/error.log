@@ -1,0 +1,193 @@
+2025-07-22 00:22:01 [database] [ERROR]: ❌ MongoDB connection failed:
+2025-07-22 00:22:01 [server] [ERROR]: Database connection failed: option buffermaxentries is not supported {"errorLabelSet":{}}
+MongoParseError: option buffermaxentries is not supported
+    at parseOptions (/Users/j/Downloads/project3/node_modules/mongodb/lib/connection_string.js:278:15)
+    at new MongoClient (/Users/j/Downloads/project3/node_modules/mongodb/lib/mongo_client.js:65:61)
+    at NativeConnection.createClient (/Users/j/Downloads/project3/node_modules/mongoose/lib/drivers/node-mongodb-native/connection.js:343:14)
+    at NativeConnection.openUri (/Users/j/Downloads/project3/node_modules/mongoose/lib/connection.js:1071:34)
+    at Mongoose.connect (/Users/j/Downloads/project3/node_modules/mongoose/lib/mongoose.js:450:15)
+    at Object.connectDB (/Users/j/Downloads/project3/src/utils/DatabaseHelp.js:34:20)
+    at startServer (/Users/j/Downloads/project3/server.js:123:14)
+    at Object.<anonymous> (/Users/j/Downloads/project3/server.js:290:1)
+    at Module._compile (node:internal/modules/cjs/loader:1730:14)
+    at Object..js (node:internal/modules/cjs/loader:1895:10)
+2025-07-22 00:22:43 [server] [ERROR]: Database connection failed: option buffermaxentries is not supported {"errorLabelSet":{}}
+MongoParseError: option buffermaxentries is not supported
+    at parseOptions (/Users/j/Downloads/project3/node_modules/mongodb/lib/connection_string.js:278:15)
+    at new MongoClient (/Users/j/Downloads/project3/node_modules/mongodb/lib/mongo_client.js:65:61)
+    at NativeConnection.createClient (/Users/j/Downloads/project3/node_modules/mongoose/lib/drivers/node-mongodb-native/connection.js:343:14)
+    at NativeConnection.openUri (/Users/j/Downloads/project3/node_modules/mongoose/lib/connection.js:1071:34)
+    at Mongoose.connect (/Users/j/Downloads/project3/node_modules/mongoose/lib/mongoose.js:450:15)
+    at Object.connectDB (/Users/j/Downloads/project3/src/utils/DatabaseHelp.js:34:20)
+    at startServer (/Users/j/Downloads/project3/server.js:123:14)
+    at Object.<anonymous> (/Users/j/Downloads/project3/server.js:290:1)
+    at Module._compile (node:internal/modules/cjs/loader:1730:14)
+    at Object..js (node:internal/modules/cjs/loader:1895:10)
+2025-07-22 00:22:43 [database] [ERROR]: ❌ MongoDB connection failed:
+2025-07-22 00:24:09 [database] [ERROR]: ❌ MongoDB connection failed:
+2025-07-22 00:24:09 [server] [ERROR]: Database connection failed: option buffermaxentries is not supported {"errorLabelSet":{}}
+MongoParseError: option buffermaxentries is not supported
+    at parseOptions (/Users/j/Downloads/project3/node_modules/mongodb/lib/connection_string.js:278:15)
+    at new MongoClient (/Users/j/Downloads/project3/node_modules/mongodb/lib/mongo_client.js:65:61)
+    at NativeConnection.createClient (/Users/j/Downloads/project3/node_modules/mongoose/lib/drivers/node-mongodb-native/connection.js:343:14)
+    at NativeConnection.openUri (/Users/j/Downloads/project3/node_modules/mongoose/lib/connection.js:1071:34)
+    at Mongoose.connect (/Users/j/Downloads/project3/node_modules/mongoose/lib/mongoose.js:450:15)
+    at Object.connectDB (/Users/j/Downloads/project3/src/utils/DatabaseHelp.js:34:20)
+    at startServer (/Users/j/Downloads/project3/server.js:123:14)
+    at Object.<anonymous> (/Users/j/Downloads/project3/server.js:290:1)
+    at Module._compile (node:internal/modules/cjs/loader:1730:14)
+    at Object..js (node:internal/modules/cjs/loader:1895:10)
+2025-07-22 00:30:14 [database] [ERROR]: ❌ MongoDB connection failed:
+2025-07-22 00:30:14 [server] [ERROR]: Database connection failed: option buffermaxentries is not supported {"errorLabelSet":{}}
+MongoParseError: option buffermaxentries is not supported
+    at parseOptions (/Users/j/Downloads/project3/node_modules/mongodb/lib/connection_string.js:278:15)
+    at new MongoClient (/Users/j/Downloads/project3/node_modules/mongodb/lib/mongo_client.js:65:61)
+    at NativeConnection.createClient (/Users/j/Downloads/project3/node_modules/mongoose/lib/drivers/node-mongodb-native/connection.js:343:14)
+    at NativeConnection.openUri (/Users/j/Downloads/project3/node_modules/mongoose/lib/connection.js:1071:34)
+    at Mongoose.connect (/Users/j/Downloads/project3/node_modules/mongoose/lib/mongoose.js:450:15)
+    at Object.connectDB (/Users/j/Downloads/project3/src/utils/DatabaseHelp.js:34:20)
+    at startServer (/Users/j/Downloads/project3/server.js:123:14)
+    at Object.<anonymous> (/Users/j/Downloads/project3/server.js:290:1)
+    at Module._compile (node:internal/modules/cjs/loader:1730:14)
+    at Object..js (node:internal/modules/cjs/loader:1895:10)
+2025-07-22 01:00:02 [database] [ERROR]: ❌ MongoDB connection failed:
+2025-07-22 01:00:02 [server] [ERROR]: Database connection failed: option buffermaxentries is not supported {"errorLabelSet":{}}
+MongoParseError: option buffermaxentries is not supported
+    at parseOptions (/Users/j/Downloads/project3/node_modules/mongodb/lib/connection_string.js:278:15)
+    at new MongoClient (/Users/j/Downloads/project3/node_modules/mongodb/lib/mongo_client.js:65:61)
+    at NativeConnection.createClient (/Users/j/Downloads/project3/node_modules/mongoose/lib/drivers/node-mongodb-native/connection.js:343:14)
+    at NativeConnection.openUri (/Users/j/Downloads/project3/node_modules/mongoose/lib/connection.js:1071:34)
+    at Mongoose.connect (/Users/j/Downloads/project3/node_modules/mongoose/lib/mongoose.js:450:15)
+    at Object.connectDB (/Users/j/Downloads/project3/src/utils/DatabaseHelp.js:34:20)
+    at startServer (/Users/j/Downloads/project3/server.js:123:14)
+    at Object.<anonymous> (/Users/j/Downloads/project3/server.js:290:1)
+    at Module._compile (node:internal/modules/cjs/loader:1730:14)
+    at Object..js (node:internal/modules/cjs/loader:1895:10)
+2025-07-22 01:14:37 [database] [ERROR]: ❌ MongoDB connection failed:
+2025-07-22 01:14:37 [server] [ERROR]: Database connection failed: option buffermaxentries is not supported {"errorLabelSet":{}}
+MongoParseError: option buffermaxentries is not supported
+    at parseOptions (/Users/j/Downloads/project3/node_modules/mongodb/lib/connection_string.js:278:15)
+    at new MongoClient (/Users/j/Downloads/project3/node_modules/mongodb/lib/mongo_client.js:65:61)
+    at NativeConnection.createClient (/Users/j/Downloads/project3/node_modules/mongoose/lib/drivers/node-mongodb-native/connection.js:343:14)
+    at NativeConnection.openUri (/Users/j/Downloads/project3/node_modules/mongoose/lib/connection.js:1071:34)
+    at Mongoose.connect (/Users/j/Downloads/project3/node_modules/mongoose/lib/mongoose.js:450:15)
+    at Object.connectDB (/Users/j/Downloads/project3/src/utils/DatabaseHelp.js:34:20)
+    at startServer (/Users/j/Downloads/project3/server.js:123:14)
+    at Object.<anonymous> (/Users/j/Downloads/project3/server.js:290:1)
+    at Module._compile (node:internal/modules/cjs/loader:1730:14)
+    at Object..js (node:internal/modules/cjs/loader:1895:10)
+2025-07-22 01:18:33 [database] [ERROR]: ❌ MongoDB connection failed:
+2025-07-22 01:18:33 [server] [ERROR]: Database connection failed: option buffermaxentries is not supported {"errorLabelSet":{}}
+MongoParseError: option buffermaxentries is not supported
+    at parseOptions (/Users/j/Downloads/project3/node_modules/mongodb/lib/connection_string.js:278:15)
+    at new MongoClient (/Users/j/Downloads/project3/node_modules/mongodb/lib/mongo_client.js:65:61)
+    at NativeConnection.createClient (/Users/j/Downloads/project3/node_modules/mongoose/lib/drivers/node-mongodb-native/connection.js:343:14)
+    at NativeConnection.openUri (/Users/j/Downloads/project3/node_modules/mongoose/lib/connection.js:1071:34)
+    at Mongoose.connect (/Users/j/Downloads/project3/node_modules/mongoose/lib/mongoose.js:450:15)
+    at Object.connectDB (/Users/j/Downloads/project3/src/utils/DatabaseHelp.js:34:20)
+    at startServer (/Users/j/Downloads/project3/server.js:123:14)
+    at Object.<anonymous> (/Users/j/Downloads/project3/server.js:290:1)
+    at Module._compile (node:internal/modules/cjs/loader:1730:14)
+    at Object..js (node:internal/modules/cjs/loader:1895:10)
+2025-07-22 01:23:39 [database] [ERROR]: ❌ MongoDB connection failed:
+2025-07-22 01:23:39 [server] [ERROR]: Database connection failed: option buffermaxentries is not supported {"errorLabelSet":{}}
+MongoParseError: option buffermaxentries is not supported
+    at parseOptions (/Users/j/Downloads/project3/node_modules/mongodb/lib/connection_string.js:278:15)
+    at new MongoClient (/Users/j/Downloads/project3/node_modules/mongodb/lib/mongo_client.js:65:61)
+    at NativeConnection.createClient (/Users/j/Downloads/project3/node_modules/mongoose/lib/drivers/node-mongodb-native/connection.js:343:14)
+    at NativeConnection.openUri (/Users/j/Downloads/project3/node_modules/mongoose/lib/connection.js:1071:34)
+    at Mongoose.connect (/Users/j/Downloads/project3/node_modules/mongoose/lib/mongoose.js:450:15)
+    at Object.connectDB (/Users/j/Downloads/project3/src/utils/DatabaseHelp.js:34:20)
+    at startServer (/Users/j/Downloads/project3/server.js:123:14)
+    at Object.<anonymous> (/Users/j/Downloads/project3/server.js:290:1)
+    at Module._compile (node:internal/modules/cjs/loader:1730:14)
+    at Object..js (node:internal/modules/cjs/loader:1895:10)
+2025-07-22 01:26:09 [database] [ERROR]: ❌ MongoDB connection failed:
+2025-07-22 01:26:09 [server] [ERROR]: Database connection failed: option buffermaxentries is not supported {"errorLabelSet":{}}
+MongoParseError: option buffermaxentries is not supported
+    at parseOptions (/Users/j/Downloads/project3/node_modules/mongodb/lib/connection_string.js:278:15)
+    at new MongoClient (/Users/j/Downloads/project3/node_modules/mongodb/lib/mongo_client.js:65:61)
+    at NativeConnection.createClient (/Users/j/Downloads/project3/node_modules/mongoose/lib/drivers/node-mongodb-native/connection.js:343:14)
+    at NativeConnection.openUri (/Users/j/Downloads/project3/node_modules/mongoose/lib/connection.js:1071:34)
+    at Mongoose.connect (/Users/j/Downloads/project3/node_modules/mongoose/lib/mongoose.js:450:15)
+    at Object.connectDB (/Users/j/Downloads/project3/src/utils/DatabaseHelp.js:34:20)
+    at startServer (/Users/j/Downloads/project3/server.js:123:14)
+    at Object.<anonymous> (/Users/j/Downloads/project3/server.js:290:1)
+    at Module._compile (node:internal/modules/cjs/loader:1730:14)
+    at Object..js (node:internal/modules/cjs/loader:1895:10)
+2025-07-22 13:40:16 [database] [ERROR]: ❌ MongoDB connection failed:
+2025-07-22 13:40:16 [server] [ERROR]: Database connection failed: option buffermaxentries is not supported {"errorLabelSet":{}}
+MongoParseError: option buffermaxentries is not supported
+    at parseOptions (/Users/j/Downloads/project3/node_modules/mongodb/lib/connection_string.js:278:15)
+    at new MongoClient (/Users/j/Downloads/project3/node_modules/mongodb/lib/mongo_client.js:65:61)
+    at NativeConnection.createClient (/Users/j/Downloads/project3/node_modules/mongoose/lib/drivers/node-mongodb-native/connection.js:343:14)
+    at NativeConnection.openUri (/Users/j/Downloads/project3/node_modules/mongoose/lib/connection.js:1071:34)
+    at Mongoose.connect (/Users/j/Downloads/project3/node_modules/mongoose/lib/mongoose.js:450:15)
+    at Object.connectDB (/Users/j/Downloads/project3/src/utils/DatabaseHelp.js:34:20)
+    at startServer (/Users/j/Downloads/project3/server.js:123:14)
+    at Object.<anonymous> (/Users/j/Downloads/project3/server.js:290:1)
+    at Module._compile (node:internal/modules/cjs/loader:1730:14)
+    at Object..js (node:internal/modules/cjs/loader:1895:10)
+2025-07-22 18:23:42 [database] [ERROR]: ❌ MongoDB connection failed:
+2025-07-22 18:23:42 [server] [ERROR]: Database connection failed: option buffermaxentries is not supported {"errorLabelSet":{}}
+MongoParseError: option buffermaxentries is not supported
+    at parseOptions (/Users/j/Downloads/project3/node_modules/mongodb/lib/connection_string.js:278:15)
+    at new MongoClient (/Users/j/Downloads/project3/node_modules/mongodb/lib/mongo_client.js:65:61)
+    at NativeConnection.createClient (/Users/j/Downloads/project3/node_modules/mongoose/lib/drivers/node-mongodb-native/connection.js:343:14)
+    at NativeConnection.openUri (/Users/j/Downloads/project3/node_modules/mongoose/lib/connection.js:1071:34)
+    at Mongoose.connect (/Users/j/Downloads/project3/node_modules/mongoose/lib/mongoose.js:450:15)
+    at Object.connectDB (/Users/j/Downloads/project3/src/utils/DatabaseHelp.js:34:20)
+    at startServer (/Users/j/Downloads/project3/server.js:122:14)
+    at Object.<anonymous> (/Users/j/Downloads/project3/server.js:290:1)
+    at Module._compile (node:internal/modules/cjs/loader:1730:14)
+    at Object..js (node:internal/modules/cjs/loader:1895:10)
+2025-07-22 18:27:30 [database] [ERROR]: ❌ MongoDB connection failed:
+2025-07-22 18:27:30 [server] [ERROR]: Database connection failed: option buffermaxentries is not supported {"errorLabelSet":{}}
+MongoParseError: option buffermaxentries is not supported
+    at parseOptions (/Users/j/Downloads/project3/node_modules/mongodb/lib/connection_string.js:278:15)
+    at new MongoClient (/Users/j/Downloads/project3/node_modules/mongodb/lib/mongo_client.js:65:61)
+    at NativeConnection.createClient (/Users/j/Downloads/project3/node_modules/mongoose/lib/drivers/node-mongodb-native/connection.js:343:14)
+    at NativeConnection.openUri (/Users/j/Downloads/project3/node_modules/mongoose/lib/connection.js:1071:34)
+    at Mongoose.connect (/Users/j/Downloads/project3/node_modules/mongoose/lib/mongoose.js:450:15)
+    at Object.connectDB (/Users/j/Downloads/project3/src/utils/DatabaseHelp.js:34:20)
+    at startServer (/Users/j/Downloads/project3/server.js:122:14)
+    at Object.<anonymous> (/Users/j/Downloads/project3/server.js:290:1)
+    at Module._compile (node:internal/modules/cjs/loader:1730:14)
+    at Object..js (node:internal/modules/cjs/loader:1895:10)
+2025-07-22 18:27:53 [database] [ERROR]: ❌ MongoDB connection failed:
+2025-07-22 18:27:53 [server] [ERROR]: Database connection failed: option buffermaxentries is not supported {"errorLabelSet":{}}
+MongoParseError: option buffermaxentries is not supported
+    at parseOptions (/Users/j/Downloads/project3/node_modules/mongodb/lib/connection_string.js:278:15)
+    at new MongoClient (/Users/j/Downloads/project3/node_modules/mongodb/lib/mongo_client.js:65:61)
+    at NativeConnection.createClient (/Users/j/Downloads/project3/node_modules/mongoose/lib/drivers/node-mongodb-native/connection.js:343:14)
+    at NativeConnection.openUri (/Users/j/Downloads/project3/node_modules/mongoose/lib/connection.js:1071:34)
+    at Mongoose.connect (/Users/j/Downloads/project3/node_modules/mongoose/lib/mongoose.js:450:15)
+    at Object.connectDB (/Users/j/Downloads/project3/src/utils/DatabaseHelp.js:34:20)
+    at startServer (/Users/j/Downloads/project3/server.js:122:14)
+    at Object.<anonymous> (/Users/j/Downloads/project3/server.js:290:1)
+    at Module._compile (node:internal/modules/cjs/loader:1730:14)
+    at Object..js (node:internal/modules/cjs/loader:1895:10)
+2025-07-22 18:28:50 [database] [ERROR]: ❌ MongoDB connection failed: The `uri` parameter to `openUri()` must be a string, got "undefined". Make sure the first parameter to `mongoose.connect()` or `mongoose.createConnection()` is a string.
+MongooseError: The `uri` parameter to `openUri()` must be a string, got "undefined". Make sure the first parameter to `mongoose.connect()` or `mongoose.createConnection()` is a string.
+    at NativeConnection.createClient (/Users/j/Downloads/project3/node_modules/mongoose/lib/drivers/node-mongodb-native/connection.js:237:11)
+    at NativeConnection.openUri (/Users/j/Downloads/project3/node_modules/mongoose/lib/connection.js:1071:34)
+    at Mongoose.connect (/Users/j/Downloads/project3/node_modules/mongoose/lib/mongoose.js:450:15)
+    at Object.connectDB (/Users/j/Downloads/project3/src/utils/DatabaseHelp.js:19:33)
+    at startServer (/Users/j/Downloads/project3/server.js:122:14)
+    at Object.<anonymous> (/Users/j/Downloads/project3/server.js:290:1)
+    at Module._compile (node:internal/modules/cjs/loader:1730:14)
+    at Object..js (node:internal/modules/cjs/loader:1895:10)
+    at Module.load (node:internal/modules/cjs/loader:1465:32)
+    at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-07-22 18:28:50 [server] [ERROR]: Database connection failed: The `uri` parameter to `openUri()` must be a string, got "undefined". Make sure the first parameter to `mongoose.connect()` or `mongoose.createConnection()` is a string.
+MongooseError: The `uri` parameter to `openUri()` must be a string, got "undefined". Make sure the first parameter to `mongoose.connect()` or `mongoose.createConnection()` is a string.
+    at NativeConnection.createClient (/Users/j/Downloads/project3/node_modules/mongoose/lib/drivers/node-mongodb-native/connection.js:237:11)
+    at NativeConnection.openUri (/Users/j/Downloads/project3/node_modules/mongoose/lib/connection.js:1071:34)
+    at Mongoose.connect (/Users/j/Downloads/project3/node_modules/mongoose/lib/mongoose.js:450:15)
+    at Object.connectDB (/Users/j/Downloads/project3/src/utils/DatabaseHelp.js:19:33)
+    at startServer (/Users/j/Downloads/project3/server.js:122:14)
+    at Object.<anonymous> (/Users/j/Downloads/project3/server.js:290:1)
+    at Module._compile (node:internal/modules/cjs/loader:1730:14)
+    at Object..js (node:internal/modules/cjs/loader:1895:10)
+    at Module.load (node:internal/modules/cjs/loader:1465:32)
+    at Function._load (node:internal/modules/cjs/loader:1282:12)

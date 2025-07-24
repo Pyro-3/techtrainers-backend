@@ -1,7 +1,11 @@
 require("dotenv").config({ path: require("path").join(__dirname, ".env") });
 console.log("🔧 Environment loaded, PORT:", process.env.PORT);
 
-const express = require("express");
+async function startServer() {
+  console.log("🚀 Starting server function...");
+  try {
+    console.log("📦 Loading Express...");
+    const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
 const morgan = require("morgan");
@@ -10,7 +14,7 @@ const rateLimit = require("express-rate-limit");
 console.log("✅ Basic dependencies loaded");
 
 // Import middleware
-const errorHandler = require("./src/middleware/errorHandler");
+const { errorHandler } = require("./src/middleware/errorHandler");
 const corsConfig = require("./src/middleware/cors-config");
 const reqLog = require("./src/middleware/reqLog");
 const reqSanitization = require("./src/middleware/reqSanitization");
@@ -24,18 +28,29 @@ const supportRoutes = require("./src/routes/supportRoutes");
 const trainerRoutes = require("./src/routes/trainerRoutes");
 const chatRoutes = require("./src/routes/chatRoutes");
 const devAuthRoutes = require("./src/routes/devAuthRoutes");
-const appointmentRoutes = require("./src/routes/AppointmentRoutes");
+// const appointmentRoutes = require("./src/routes/AppointmentRoutes"); // COMMENTED OUT - CAUSING dateTimeUtils ERROR
 const paymentRoutes = require("./src/routes/enhancedPaymentRoutes");
 const notificationRoutes = require("./src/routes/NotificationRoutes");
 const adminRoutes = require("./src/routes/AdminRoutes");
+// const debugRoutes = require("./src/routes/debugRoutes");
 console.log("✅ Routes loaded");
 
 // Import utilities
 const DatabaseHelp = require("./src/utils/DatabaseHelp");
 const LoggerUtils = require("./src/utils/LoggerUtils");
+
+// Conditionally import Twilio service
+let sendSMS = null;
+try {
+  const twilioService = require("./services/twilioService");
+  sendSMS = twilioService.sendSMS;
+  console.log("✅ Twilio service loaded");
+} catch (error) {
+  console.log("⚠️ Twilio service not available:", error.message);
+}
+
 console.log("✅ Utilities loaded");
 
-// Initialize Express
 // Initialize Express
 const app = express();
 console.log("✅ Express app created");
@@ -59,6 +74,7 @@ const limiter = rateLimit({
 
 // Apply rate limiting to all requests
 app.use("/api/", limiter);
+console.log("✅ Rate limiting configured");
 
 // Security middleware
 app.use(
@@ -68,35 +84,50 @@ app.use(
 );
 
 // CORS configuration
-app.use(corsConfig);
+app.use(cors({
+  origin: ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:3000'],
+  credentials: true
+}));
+console.log("✅ CORS configured");
 
 // Request logging
-app.use(reqLog);
+// app.use(reqLog); // Temporarily disabled
+console.log("✅ Request logging configured");
 
 // Body parsing middleware
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+console.log("✅ Body parsing configured");
 
 // Static file serving for uploads
 app.use("/uploads", express.static("uploads"));
 console.log("✅ Static file serving configured");
 
 // Request sanitization
-app.use(reqSanitization);
+reqSanitization.sanitizeAll.forEach(middleware => {
+  if (typeof middleware === 'function') {
+    app.use(middleware);
+  }
+});
+console.log("✅ Request sanitization configured");
 
 // Development logging
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
+console.log("✅ Morgan logging configured");
 
 // Database connection
+console.log("🔌 Attempting database connection...");
 DatabaseHelp.connectDB()
   .then(() => {
     logger.info("Database connected successfully");
+    console.log("✅ Database connected successfully");
   })
   .catch((error) => {
     logger.error("Database connection failed:", error);
-    process.exit(1);
+    console.error("❌ Database connection failed:", error.message);
+    console.log("⚠️ Continuing without database connection for development...");
   });
 
 // Routes
@@ -114,11 +145,12 @@ app.get("/", (req, res) => {
       support: "/api/support",
       trainers: "/api/trainers",
       chat: "/api/chat",
-      appointments: "/api/appointments",
+      // appointments: "/api/appointments", // TEMPORARILY DISABLED
       payments: "/api/payments",
       notifications: "/api/notifications",
       admin: "/api/admin",
     },
+    note: "Appointments temporarily disabled while fixing dateTimeUtils dependency"
   });
 });
 
@@ -128,15 +160,36 @@ app.use("/api/workouts", workoutRoutes);
 app.use("/api/support", supportRoutes);
 app.use("/api/trainers", trainerRoutes);
 app.use("/api/chat", chatRoutes);
-app.use("/api/appointments", appointmentRoutes);
+// app.use("/api/appointments", appointmentRoutes); // COMMENTED OUT - CAUSING dateTimeUtils ERROR
 app.use("/api/payments", paymentRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/admin", adminRoutes);
+// app.use("/api/debug", debugRoutes);
 
 // Development routes (only in development)
 if (process.env.NODE_ENV === "development") {
   app.use("/api/dev", devAuthRoutes);
 }
+
+// SMS route
+app.post("/api/send-sms", async (req, res) => {
+  const { to, message } = req.body;
+  
+  // Check if SMS service is available
+  if (!sendSMS) {
+    return res.status(503).json({ 
+      success: false, 
+      error: "SMS service is not available. Twilio is not properly configured." 
+    });
+  }
+
+  try {
+    const result = await sendSMS(to, message);
+    res.json({ success: true, sid: result.sid, message: "SMS sent successfully" });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
 
 // Health check endpoint
 app.get("/api/health", (req, res) => {
@@ -160,33 +213,8 @@ app.use("/api/*", (req, res) => {
 // Global error handler
 app.use(errorHandler);
 
-// Graceful shutdown
-process.on("SIGTERM", async () => {
-  logger.info("SIGTERM received, shutting down gracefully");
-  await DatabaseHelp.disconnectDB();
-  process.exit(0);
-});
-
-process.on("SIGINT", async () => {
-  logger.info("SIGINT received, shutting down gracefully");
-  await DatabaseHelp.disconnectDB();
-  process.exit(0);
-});
-
-// Unhandled promise rejection handler
-process.on("unhandledRejection", (reason, promise) => {
-  logger.error("Unhandled Rejection at:", promise, "reason:", reason);
-  process.exit(1);
-});
-
-// Uncaught exception handler
-process.on("uncaughtException", (error) => {
-  logger.error("Uncaught Exception:", error);
-  process.exit(1);
-});
-
 const PORT = process.env.PORT || 3001;
-console.log("🚀 Starting server on port:", PORT);
+console.log("✅ About to start server on port:", PORT);
 
 const server = app.listen(PORT, () => {
   console.log(`🚀 TechTrainer Server running on port ${PORT}`);
@@ -207,4 +235,59 @@ server.on("error", (error) => {
   process.exit(1);
 });
 
-module.exports = { app, server };
+  } catch (error) {
+    console.error("❌ Fatal error starting server:", error);
+    process.exit(1);
+  }
+}
+
+// Graceful shutdown handlers
+process.on("SIGTERM", async () => {
+  console.log("SIGTERM received, shutting down gracefully");
+  if (typeof logger !== 'undefined') {
+    logger.info("SIGTERM received, shutting down gracefully");
+  }
+  try {
+    await DatabaseHelp.disconnectDB();
+  } catch (error) {
+    console.error("Error disconnecting database:", error);
+  }
+  process.exit(0);
+});
+
+process.on("SIGINT", async () => {
+  console.log("SIGINT received, shutting down gracefully");
+  if (typeof logger !== 'undefined') {
+    logger.info("SIGINT received, shutting down gracefully");
+  }
+  try {
+    await DatabaseHelp.disconnectDB();
+  } catch (error) {
+    console.error("Error disconnecting database:", error);
+  }
+  process.exit(0);
+});
+
+// Unhandled promise rejection handler
+process.on("unhandledRejection", (reason, promise) => {
+  console.error("Unhandled Rejection at:", promise, "reason:", reason);
+  if (typeof logger !== 'undefined') {
+    logger.error("Unhandled Rejection at:", promise, "reason:", reason);
+  }
+  process.exit(1);
+});
+
+// Uncaught exception handler
+process.on("uncaughtException", (error) => {
+  console.error("Uncaught Exception:", error);
+  if (typeof logger !== 'undefined') {
+    logger.error("Uncaught Exception:", error);
+  }
+  process.exit(1);
+});
+
+// Start the server
+startServer();
+
+// For testing purposes
+module.exports = { startServer };

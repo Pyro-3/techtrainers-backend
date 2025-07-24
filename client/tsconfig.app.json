@@ -20,5 +20,5 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src", "src/main.tsx", "vite-env.d.ts", "SignUp.jsx", "assets/App.tsx", "App.tsx"]
+  "include": ["src"]
 }

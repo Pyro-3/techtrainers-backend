@@ -20,7 +20,7 @@ const authEmailService = new AuthEmailService();
 const authController = {
   register: async (req, res) => {
     try {
-      const { name, email, password, fitnessLevel, phone } = req.body;
+      const { name, email, password, fitnessLevel, phone, role } = req.body;
 
       // Validate input
       if (!name || !email || !password) {
@@ -106,6 +106,19 @@ const authController = {
         }
       }
 
+      // Validate role if provided
+      const validRoles = ["member", "trainer"];
+      let userRole = "member"; // default role
+      
+      if (role && validRoles.includes(role)) {
+        userRole = role;
+      } else if (role && !validRoles.includes(role)) {
+        return res.status(400).json({
+          status: "error",
+          message: "Invalid role. Must be 'member' or 'trainer'",
+        });
+      }
+
       // Hash the password
       const salt = await bcrypt.genSalt(12);
       const hashedPassword = await bcrypt.hash(password, salt);
@@ -117,9 +130,11 @@ const authController = {
         password: hashedPassword,
         fitnessLevel: fitnessLevel || "beginner",
         phone: formattedPhone,
-        role: "user",
+        role: userRole,
         emailVerified: false,
         phoneVerified: false,
+        // Trainers need approval, members don't
+        isApproved: userRole === "member" ? true : false,
       });
 
       // Generate email verification token
@@ -176,7 +191,14 @@ const authController = {
         req
       );
 
-      // Send response (no token until email verified)
+      // Generate JWT token for immediate login (skip email verification for better UX)
+      const token = jwt.sign(
+        { userId: user._id, email: user.email, role: user.role },
+        process.env.JWT_SECRET || "techtrainer_secret",
+        { expiresIn: "7d" }
+      );
+
+      // Send response with token for immediate login
       const userData = {
         _id: user._id,
         name: user.name,
@@ -185,6 +207,7 @@ const authController = {
         role: user.role,
         emailVerified: user.emailVerified,
         hasPhone: !!formattedPhone,
+        isApproved: user.isApproved,
         createdAt: user.createdAt,
       };
 
@@ -192,10 +215,12 @@ const authController = {
         status: "success",
         data: {
           user: userData,
-          emailVerificationRequired: true,
+          token,
         },
         message:
-          "Account created successfully! Please check your email to verify your account.",
+          userRole === "trainer" 
+            ? "Trainer account created successfully! Please complete your profile and wait for approval."
+            : "Account created successfully! Welcome to TechTrainer!",
       });
     } catch (error) {
       await logError("USER_REGISTRATION_FAILED", error, {

@@ -1,327 +1,235 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { BarChart2, TrendingUp, ChevronDown, ChevronUp, Loader2, AlertCircle, RefreshCw } from 'lucide-react';
+import { statsAPI } from '../../services/api';
+import {
+  BarChart2,
+  TrendingUp,
+  ChevronDown,
+  ChevronUp,
+  Loader2,
+  AlertCircle,
+  RefreshCw,
+  PlusCircle,
+  Trash2,
+  Download
+} from 'lucide-react';
+import { saveAs } from 'file-saver';
 
-// Mock progress data - in a real app, this would come from your API
-const generateMockData = (weeks = 8) => {
-  const data = [];
-  let value = Math.floor(Math.random() * 20) + 60; // Start around 60-80
-  
-  for (let i = 0; i < weeks; i++) {
-    // Create some natural looking variation
-    const change = Math.floor(Math.random() * 10) - 2; // -2 to +7
-    value = Math.max(50, Math.min(100, value + change));
-    
-    data.push({
-      week: i + 1,
-      value: Number(value.toFixed(1)) // Ensure numeric precision
-    });
-  }
-  
-  return data;
-};
-
-const validateStatData = (stat: StatCard): boolean => {
-  return (
-    stat &&
-    typeof stat.id === 'string' &&
-    typeof stat.title === 'string' &&
-    typeof stat.currentValue === 'number' &&
-    typeof stat.previousValue === 'number' &&
-    typeof stat.unit === 'string' &&
-    typeof stat.change === 'number' &&
-    Array.isArray(stat.data) &&
-    stat.data.length > 0 &&
-    stat.data.every(point => 
-      typeof point.week === 'number' && 
-      typeof point.value === 'number' &&
-      !isNaN(point.value)
-    )
-  );
-};
-
-interface ProgressDataPoint {
+interface StatDataPoint {
   week: number;
   value: number;
 }
 
-interface StatCard {
-  id: string;
-  title: string;
-  currentValue: number;
-  previousValue: number;
+interface FitnessStat {
+  _id?: string;
+  type: string;
+  value: number;
   unit: string;
-  change: number;
-  data: ProgressDataPoint[];
+  createdAt?: string;
+  history?: StatDataPoint[];
 }
 
 const FitnessProgressTracker = () => {
   const { user } = useAuth();
-  const [stats, setStats] = useState<StatCard[]>([]);
-  const [expandedStat, setExpandedStat] = useState<string | null>(null);
+  const [stats, setStats] = useState<FitnessStat[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [retryCount, setRetryCount] = useState(0);  useEffect(() => {
-    const loadProgressData = async () => {
+  const [showForm, setShowForm] = useState(false);
+  const [newStat, setNewStat] = useState({ type: '', value: '', unit: '' });
+  const [submitting, setSubmitting] = useState(false);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchStats = async () => {
       try {
         setLoading(true);
         setError(null);
-        
-        // Simulate API delay
-        await new Promise(resolve => setTimeout(resolve, 800));
-        
-        // In a real app, you would fetch this data from your backend
-        if (!user) {
-          throw new Error('User not authenticated');
-        }
-        
-        const currentWeight = user?.profile?.weight || 75;
-        const previousWeight = currentWeight + 2.1; // Simulate previous weight being higher
-        const weightChange = currentWeight - previousWeight;
-          const mockStats = [
-          {
-            id: 'weight',
-            title: 'Body Weight',
-            currentValue: Number(currentWeight.toFixed(1)),
-            previousValue: Number(previousWeight.toFixed(1)),
-            unit: 'kg',
-            change: Number(weightChange.toFixed(1)),
-            data: generateMockData()
-          },
-          {
-            id: 'strength',
-            title: 'Strength Score',
-            currentValue: 82,
-            previousValue: 75,
-            unit: 'pts',
-            change: 7,
-            data: generateMockData()
-          },
-          {
-            id: 'cardio',
-            title: 'Cardio Performance',
-            currentValue: 68,
-            previousValue: 62,
-            unit: 'pts',
-            change: 6,
-            data: generateMockData()
-          }
-        ];
-        
-        // Validate data before setting state
-        const validStats = mockStats.filter(validateStatData);
-        if (validStats.length === 0) {
-          throw new Error('No valid progress data available');
-        }
-        
-        setStats(validStats);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load progress data');
+        const res = await statsAPI.getUserStats();
+        setStats(res.data);
+      } catch (err: any) {
+        setError(err.message || 'Failed to load stats');
       } finally {
         setLoading(false);
       }
     };
+    fetchStats();
+  }, []);
 
-    loadProgressData();
-  }, [user, retryCount]);
-    const toggleExpand = (id: string) => {
-    setExpandedStat(expandedStat === id ? null : id);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      setSubmitting(true);
+      await statsAPI.addUserStat({
+        type: newStat.type,
+        value: Number(newStat.value),
+        unit: newStat.unit
+      });
+      setNewStat({ type: '', value: '', unit: '' });
+      setShowForm(false);
+      const updated = await statsAPI.getUserStats();
+      setStats(updated.data);
+    } catch (err: any) {
+      alert(err.message);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
-  const handleRetry = () => {
-    setRetryCount(prev => prev + 1);
+  const handleDelete = async (id?: string) => {
+    if (!id || !confirm('Delete this stat?')) return;
+    try {
+      await statsAPI.deleteUserStat(id);
+      setStats(stats.filter(stat => stat._id !== id));
+    } catch (err: any) {
+      alert(err.message);
+    }
   };
-  
-  const getChangeColor = (change: number) => {
-    if (change > 0) return 'text-green-600';
-    if (change < 0) return 'text-red-600';
-    return 'text-stone-600';
+
+  const exportCSV = () => {
+    const headers = ['Type', 'Value', 'Unit', 'Date'];
+    const rows = stats.map(stat => [
+      stat.type,
+      stat.value,
+      stat.unit,
+      stat.createdAt ? new Date(stat.createdAt).toLocaleDateString() : 'N/A'
+    ]);
+    const csvContent = [headers, ...rows]
+      .map(row => row.map(String).join(','))
+      .join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    saveAs(blob, 'fitness_stats.csv');
   };
-  
-  const getChangeIcon = (change: number) => {
-    if (change > 0) return <TrendingUp size={16} className="text-green-600" />;
-    if (change < 0) return <TrendingUp size={16} className="text-red-600 transform rotate-180" />;
-    return null;
-  };
-  
-  const getChangeText = (change: number) => {
-    const absChange = Math.abs(change);
-    if (change > 0) return `+${absChange}`;
-    if (change < 0) return `-${absChange}`;
-    return '0';
-  };
-    return (
+
+  return (
     <div className="bg-white rounded-xl shadow-sm p-6">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold text-stone-800">My Fitness Progress</h2>
-        <div className="flex items-center gap-2">
-          {error && (
-            <button 
-              onClick={handleRetry}
-              className="text-amber-700 hover:text-amber-800 text-sm font-medium flex items-center gap-1"
-              disabled={loading}
-            >
-              <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
-              Retry
-            </button>
-          )}
-          <button className="text-amber-700 hover:text-amber-800 text-sm font-medium">
-            View Detailed Stats
+        <div className="flex gap-2">
+          <button
+            onClick={exportCSV}
+            className="flex items-center gap-1 bg-sky-600 hover:bg-sky-700 text-white px-3 py-2 rounded-lg"
+          >
+            <Download size={18} />
+            <span>Export CSV</span>
+          </button>
+          <button
+            onClick={() => setShowForm(!showForm)}
+            className="flex items-center gap-1 bg-amber-700 hover:bg-amber-800 text-white px-3 py-2 rounded-lg"
+          >
+            <PlusCircle size={18} />
+            <span>Add Stat</span>
           </button>
         </div>
       </div>
 
-      {/* Loading State */}
-      {loading && (
-        <div className="flex items-center justify-center py-12">
-          <div className="text-center">
-            <Loader2 className="h-8 w-8 animate-spin text-amber-600 mx-auto mb-3" />
-            <p className="text-stone-600">Loading your progress...</p>
+      {showForm && (
+        <form onSubmit={handleSubmit} className="bg-stone-50 p-4 rounded-lg mb-6 space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <input
+              type="text"
+              placeholder="Stat Type (e.g. Weight)"
+              value={newStat.type}
+              onChange={(e) => setNewStat({ ...newStat, type: e.target.value })}
+              className="p-2 border border-stone-300 rounded"
+              required
+            />
+            <input
+              type="number"
+              placeholder="Value"
+              value={newStat.value}
+              onChange={(e) => setNewStat({ ...newStat, value: e.target.value })}
+              className="p-2 border border-stone-300 rounded"
+              required
+            />
+            <input
+              type="text"
+              placeholder="Unit (e.g. kg)"
+              value={newStat.unit}
+              onChange={(e) => setNewStat({ ...newStat, unit: e.target.value })}
+              className="p-2 border border-stone-300 rounded"
+              required
+            />
           </div>
-        </div>
+          <button
+            type="submit"
+            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg"
+            disabled={submitting}
+          >
+            {submitting ? 'Saving...' : 'Save Stat'}
+          </button>
+        </form>
       )}
 
-      {/* Error State */}
-      {error && !loading && (
-        <div className="flex items-center justify-center py-12">
-          <div className="text-center">
-            <AlertCircle className="h-8 w-8 text-red-500 mx-auto mb-3" />
-            <p className="text-stone-800 font-medium mb-1">Unable to load progress data</p>
-            <p className="text-stone-600 text-sm mb-4">{error}</p>
-            <button 
-              onClick={handleRetry}
-              className="bg-amber-700 hover:bg-amber-800 text-white px-4 py-2 rounded-lg text-sm font-medium"
-            >
-              Try Again
-            </button>
-          </div>
+      {loading ? (
+        <div className="text-center py-10">
+          <Loader2 className="animate-spin h-8 w-8 text-amber-600 mx-auto mb-2" />
+          <p className="text-stone-600">Loading your progress...</p>
         </div>
-      )}
-
-      {/* Content */}
-      {!loading && !error && stats.length > 0 && (
+      ) : error ? (
+        <div className="text-center py-10">
+          <AlertCircle className="text-red-500 h-8 w-8 mx-auto mb-2" />
+          <p className="text-stone-800 font-medium mb-1">Error loading stats</p>
+          <p className="text-stone-600 text-sm mb-3">{error}</p>
+          <button onClick={() => window.location.reload()} className="text-amber-700">Retry</button>
+        </div>
+      ) : stats.length === 0 ? (
+        <div className="text-center py-10">
+          <BarChart2 className="text-stone-400 h-8 w-8 mx-auto mb-2" />
+          <p className="text-stone-800 font-medium">No stats yet</p>
+          <p className="text-stone-600 text-sm">Add a new stat to begin tracking.</p>
+        </div>
+      ) : (
         <div className="space-y-4">
-          {stats.map((stat) => (
-            <div key={stat.id} className="border border-stone-200 rounded-lg overflow-hidden">
-              <div 
+          {stats.map((stat, index) => (
+            <div key={index} className="border border-stone-200 rounded-lg overflow-hidden">
+              <div
                 className="p-4 cursor-pointer hover:bg-stone-50 transition-colors"
-                onClick={() => toggleExpand(stat.id)}
+                onClick={() => setExpandedId(expandedId === stat._id ? null : stat._id ?? null)}
+
               >
                 <div className="flex justify-between items-center">
-                  <h3 className="font-semibold text-stone-800">{stat.title}</h3>
-                  <button className="text-stone-400 hover:text-stone-600 transition-colors">
-                    {expandedStat === stat.id ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-                  </button>
-                </div>
-                
-                <div className="mt-2 flex justify-between items-end">
-                  <div>
-                    <div className="text-3xl font-bold text-stone-900">
-                      {stat.currentValue}
-                      <span className="text-lg ml-1 text-stone-600">{stat.unit}</span>
-                    </div>
-                    <div className="flex items-center mt-1">
-                      <span className={`text-sm mr-1 ${getChangeColor(stat.change)}`}>
-                        {getChangeText(stat.change)} {stat.unit}
-                      </span>
-                      {getChangeIcon(stat.change)}
-                      <span className="text-xs text-stone-500 ml-2">vs last month</span>
-                    </div>
-                  </div>
-                    <div className="flex items-end h-16">
-                    {/* Simple bar chart visualization */}
-                    {stat.data.slice(-5).map((point, i) => {
-                      // Normalize height to fit within the 64px container (h-16)
-                      const maxHeight = 60; // Leave some space for padding
-                      const normalizedHeight = Math.max(8, (point.value / 100) * maxHeight);
-                      
-                      return (
-                        <div key={i} className="flex flex-col items-center mx-1">
-                          <div 
-                            className="w-4 bg-amber-600 rounded-t transition-all duration-300"
-                            style={{ height: `${normalizedHeight}px` }}
-                          ></div>
-                          <div className="text-xs text-stone-400 mt-1">{point.week}</div>
-                        </div>
-                      );
-                    })}
+                  <h3 className="text-lg font-semibold text-stone-800 capitalize">{stat.type}</h3>
+                  <div className="flex items-center gap-3">
+                    <p className="text-2xl font-bold text-stone-900">
+                      {stat.value} <span className="text-base text-stone-500">{stat.unit}</span>
+                    </p>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(stat._id);
+                      }}
+                      className="text-red-500 hover:text-red-600"
+                    >
+                      <Trash2 size={20} />
+                    </button>
+                    {expandedId === stat._id ? (
+                      <ChevronUp size={20} className="text-stone-500" />
+                    ) : (
+                      <ChevronDown size={20} className="text-stone-500" />
+                    )}
                   </div>
                 </div>
+                <p className="text-sm text-stone-500 mt-1">
+                  {stat.createdAt ? new Date(stat.createdAt).toLocaleDateString() : 'No date'}
+                </p>
               </div>
-              
-              {expandedStat === stat.id && (
-                <div className="bg-stone-50 p-4 border-t border-stone-200 animate-in slide-in-from-top duration-200">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <h4 className="font-medium text-stone-700 mb-1">8-Week Trend</h4>
-                      <p className="text-sm text-stone-500">
-                        {stat.change > 0 
-                          ? 'Showing positive progress over time' 
-                          : stat.change < 0 
-                          ? 'Working to improve these results'
-                          : 'Maintaining consistent results'}
-                      </p>
-                    </div>
-                    <div>
-                      <button className="bg-amber-700 hover:bg-amber-800 text-white px-4 py-2 rounded-lg text-sm transition-colors">
-                        Set New Goal
-                      </button>
-                    </div>
-                  </div>
-                    {/* Full chart visualization */}
-                  <div className="mt-4 h-48 flex items-end justify-between">
-                    {stat.data.map((point, i) => {
-                      // Normalize height for the larger chart (192px = h-48)
-                      const maxHeight = 180; // Leave some space for padding
-                      const normalizedHeight = Math.max(20, (point.value / 100) * maxHeight);
-                      
-                      return (
-                        <div key={i} className="flex flex-col items-center flex-1">
-                          <div 
-                            className={`w-full max-w-[30px] ${
-                              i === stat.data.length - 1 ? 'bg-amber-600' : 'bg-amber-300'
-                            } rounded-t mx-1 transition-all duration-300`}
-                            style={{ height: `${normalizedHeight}px` }}
-                          ></div>
-                          <div className="text-xs text-stone-500 mt-1">W{point.week}</div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                  
-                  <div className="mt-4 grid grid-cols-3 gap-4 text-center">
-                    <div className="bg-white p-3 rounded-lg shadow-sm">
-                      <p className="text-sm text-stone-500">Starting</p>
-                      <p className="font-bold text-stone-800">{stat.data[0].value} {stat.unit}</p>
-                    </div>
-                    
-                    <div className="bg-white p-3 rounded-lg shadow-sm">
-                      <p className="text-sm text-stone-500">Current</p>
-                      <p className="font-bold text-stone-800">{stat.currentValue} {stat.unit}</p>
-                    </div>
-                    
-                    <div className="bg-white p-3 rounded-lg shadow-sm">
-                      <p className="text-sm text-stone-500">Change</p>
-                      <p className={`font-bold ${getChangeColor(stat.currentValue - stat.data[0].value)}`}>
-                        {getChangeText(stat.currentValue - stat.data[0].value)} {stat.unit}
-                      </p>
-                    </div>
+              {expandedId === stat._id && (
+                <div className="bg-stone-50 px-4 py-2">
+                  <h4 className="text-sm text-stone-500 mb-1">Trend</h4>
+                  <div className="flex gap-1 items-end h-24">
+                    {(stat.history || []).map((pt, i) => (
+                      <div
+                        key={i}
+                        className="bg-amber-600 rounded-t"
+                        style={{ height: `${Math.max(4, pt.value)}px`, width: '8px' }}
+                        title={`Week ${pt.week}: ${pt.value}`}
+                      ></div>
+                    ))}
                   </div>
                 </div>
               )}
             </div>
           ))}
-        </div>
-      )}
-
-      {/* Empty State */}
-      {!loading && !error && stats.length === 0 && (
-        <div className="flex items-center justify-center py-12">
-          <div className="text-center">
-            <BarChart2 className="h-8 w-8 text-stone-400 mx-auto mb-3" />
-            <p className="text-stone-800 font-medium mb-1">No progress data available</p>
-            <p className="text-stone-600 text-sm">Start tracking your fitness journey to see progress here.</p>
-          </div>
         </div>
       )}
     </div>

@@ -38,4 +38,7 @@ router.get("/notifications", userController.getNotificationSettings);
 router.get("/goals", userController.getGoals);
 router.put("/goals", userController.updateGoals);
 
+// Email analytics (for user's own email stats)
+router.get("/email-stats", userController.getEmailStats);
+
 module.exports = router;

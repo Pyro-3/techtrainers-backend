@@ -142,6 +142,33 @@ const userSchema = new mongoose.Schema(
         enum: ["morning", "afternoon", "evening"],
         default: "evening",
       },
+      // Email preferences for managing notifications
+      email: {
+        appointmentReminders: {
+          type: Boolean,
+          default: true,
+        },
+        promotionalEmails: {
+          type: Boolean,
+          default: true,
+        },
+        trainerUpdates: {
+          type: Boolean,
+          default: true,
+        },
+        systemNotifications: {
+          type: Boolean,
+          default: true,
+        },
+        weeklyProgressSummary: {
+          type: Boolean,
+          default: false,
+        },
+        marketingEmails: {
+          type: Boolean,
+          default: false,
+        }
+      }
     },
     stats: {
       totalWorkouts: {
@@ -240,8 +267,8 @@ const userSchema = new mongoose.Schema(
     // Role-based access
     role: {
       type: String,
-      enum: ["user", "trainer", "admin"],
-      default: "user",
+      enum: ["member", "trainer", "admin"],
+      default: "member",
     },
     
     // Admin protection
@@ -260,9 +287,8 @@ const userSchema = new mongoose.Schema(
     // Trainer-specific fields
     isApproved: {
       type: Boolean,
-      default: false, // Only for trainers
-      required: function() {
-        return this.role === 'trainer';
+      default: function() {
+        return this.role === 'member'; // Members auto-approved, trainers need approval
       }
     },
     profileCompleted: {
@@ -524,9 +550,8 @@ userSchema.methods.addPersonalRecord = function (exercise, weight, reps) {
 };
 
 // Indexes for performance
-userSchema.index({ email: 1 });
+// Note: email and auth0Id indexes are automatically created by unique: true
 userSchema.index({ role: 1 });
-userSchema.index({ auth0Id: 1 });
 userSchema.index({ isApproved: 1, role: 1 });
 userSchema.index({ "trainerProfile.specialties": 1 });
 

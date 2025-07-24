@@ -10,6 +10,8 @@ const progressRoutes = require('./ProgressRoutes');
 const adminRoutes = require('./AdminRoutes');
 const supportRoutes = require('./supportRoutes');
 const notificationRoutes = require('./NotificationRoutes');
+const trainerRoutes = require('./trainerRoutes'); // Existing public trainer routes
+const trainerDashboardRoutes = require('./trainerDashboardRoutes'); // New trainer dashboard routes
 
 // Register routes with appropriate base paths
 router.use('/auth', authRoutes);
@@ -20,6 +22,8 @@ router.use('/progress', progressRoutes);
 router.use('/admin', adminRoutes);
 router.use('/support', supportRoutes);
 router.use('/notifications', notificationRoutes);
+router.use('/trainers', trainerRoutes); // Public trainer endpoints (browse, book sessions)
+router.use('/trainer', trainerDashboardRoutes); // Authenticated trainer dashboard endpoints
 
 // Development routes (only available in dev environment)
 if (process.env.NODE_ENV === 'development') {

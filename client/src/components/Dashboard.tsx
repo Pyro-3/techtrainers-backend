@@ -24,6 +24,12 @@ interface WorkoutStats {
   progress: number;
 }
 
+interface UserData {
+  name?: string;
+  fitnessLevel?: string;
+  profilePicture?: string;
+}
+
 const Dashboard = () => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
@@ -43,7 +49,8 @@ const Dashboard = () => {
   useEffect(() => {
     const loadDashboardData = async () => {
       setLoading(true);
-      try {        // Load stats
+      try {
+        // Load stats
         const statsResponse = await workoutAPI.getStats();
         const statsData = statsResponse?.data?.data || {};
         
@@ -62,7 +69,7 @@ const Dashboard = () => {
         // Load recent workouts (completed)
         const recent = await workoutAPI.getWorkouts({ status: 'completed', limit: 3 });
         setRecentWorkouts(recent?.data?.data?.workouts || []);
-          } catch (err) {
+      } catch (err) {
         console.error('Error loading dashboard data:', err);
         // Set fallback data if API fails
         setStats({
@@ -79,8 +86,11 @@ const Dashboard = () => {
       }
     };
     
-    loadDashboardData();
-  }, [user]);
+    // Only load data if user exists and is authenticated
+    if (user?._id) {
+      loadDashboardData();
+    }
+  }, [user?._id, user?.fitnessLevel]); // Only depend on user ID and fitness level
   
   const calculateProgressColor = (progress: number) => {
     if (progress < 30) return 'bg-red-500';
@@ -94,9 +104,46 @@ const Dashboard = () => {
     return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
   };
 
-  const handleRefreshData = () => {
+  const handleRefreshData = async () => {
     setSelectedWorkoutId(null);
     setActiveTab('overview');
+    
+    // Reload dashboard data
+    setLoading(true);
+    try {
+      const statsResponse = await workoutAPI.getStats();
+      const statsData = statsResponse?.data?.data || {};
+      
+      setStats({
+        totalWorkouts: statsData?.totalWorkouts || 0,
+        totalMinutes: statsData?.totalMinutes || 0,
+        streakDays: statsData?.currentStreak || 0,
+        level: user?.fitnessLevel || 'beginner',
+        progress: statsData?.progress || 0
+      });
+      
+      const upcoming = await workoutAPI.getWorkouts({ status: 'planned', limit: 3 });
+      setUpcomingWorkouts(upcoming?.data?.data?.workouts || []);
+      
+      const recent = await workoutAPI.getWorkouts({ status: 'completed', limit: 3 });
+      setRecentWorkouts(recent?.data?.data?.workouts || []);
+    } catch (err) {
+      console.error('Error refreshing dashboard data:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getProfilePicture = () => {
+    if (user && 'profilePicture' in user && user.profilePicture) {
+      return user.profilePicture;
+    }
+    return null;
+  };
+
+  const getInitials = (name?: string) => {
+    if (!name) return 'U';
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
   };
 
   if (loading) {
@@ -203,7 +250,34 @@ const Dashboard = () => {
   return (
     <div className="bg-stone-50 py-8 px-4">
       <div className="max-w-6xl mx-auto">
-        <h1 className="text-3xl font-bold text-stone-800 mb-6">Welcome back, {user?.name.split(' ')[0]}</h1>
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-3xl font-bold text-stone-800">
+            Welcome back, {user?.name?.split(' ')[0] || 'User'}
+          </h1>
+          <div className="flex items-center space-x-3">
+            <div className="w-12 h-12 rounded-full overflow-hidden bg-amber-100 flex items-center justify-center">
+              {getProfilePicture() ? (
+                <img 
+                  src={getProfilePicture() as string} 
+                  alt="Profile" 
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                    const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
+                    if (nextElement) {
+                      nextElement.classList.remove('hidden');
+                    }
+                  }}
+                />
+              ) : null}
+              <div className={`flex items-center justify-center w-full h-full ${getProfilePicture() ? 'hidden' : ''}`}>
+                <span className="text-amber-700 font-semibold text-lg">
+                  {getInitials(user?.name)}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
         
         {/* Summary Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">

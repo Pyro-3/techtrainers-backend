@@ -38,7 +38,7 @@ router.post('/quick-login', async (req, res) => {
         name: 'Dev User',
         email,
         password: 'Password1!',  // Will be hashed by pre-save hook
-        role: role || 'user'
+        role: role || 'member'
       });
       
       await user.save();
