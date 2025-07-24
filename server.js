@@ -5,20 +5,17 @@ async function startServer() {
   console.log("🚀 Starting server function...");
   try {
     console.log("📦 Loading Express...");
-    const express = require("express");
+const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
 const morgan = require("morgan");
-const mongoose = require("mongoose");
 const rateLimit = require("express-rate-limit");
 console.log("✅ Basic dependencies loaded");
 
 // Import middleware
+// Import middleware
 const { errorHandler } = require("./src/middleware/errorHandler");
-const corsConfig = require("./src/middleware/cors-config");
-const reqLog = require("./src/middleware/reqLog");
 const reqSanitization = require("./src/middleware/reqSanitization");
-console.log("✅ Middleware loaded");
 
 // Import routes
 const authRoutes = require("./src/routes/authRoutes");
@@ -85,7 +82,7 @@ app.use(
 
 // CORS configuration
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:3000'],
+  origin: ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:3000', 'https://techtrainers.ca', 'https://www.techtrainers.ca'],
   credentials: true
 }));
 console.log("✅ CORS configured");
@@ -132,10 +129,9 @@ DatabaseHelp.connectDB()
 
 // Routes
 // Root route
-app.get("/", (req, res) => {
+app.get("/", (_req, res) => {
   res.json({
     status: "success",
-    message: "Welcome to TechTrainer API",
     version: "1.0.0",
     endpoints: {
       health: "/api/health",
@@ -192,10 +188,9 @@ app.post("/api/send-sms", async (req, res) => {
 });
 
 // Health check endpoint
-app.get("/api/health", (req, res) => {
+app.get("/api/health", (_req, res) => {
   res.status(200).json({
     status: "ok",
-    message: "TechTrainer API is running",
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || "development",
     version: require("./package.json").version,
