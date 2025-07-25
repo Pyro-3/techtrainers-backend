@@ -158,14 +158,11 @@ const authController = {
 
   login: async (req, res) => {
     try {
-      console.log('='.repeat(50));
-      console.log('🔑 LOGIN ATTEMPT STARTED');
-      console.log('Environment:', process.env.NODE_ENV);
-      console.log('Time:', new Date().toISOString());
-      console.log('Request IP:', req.ip);
-      console.log('User Agent:', req.get('User-Agent'));
-      console.log('='.repeat(50));
-
+      console.log('🔑 LOGIN ENDPOINT HIT');
+      console.log('Method:', req.method);
+      console.log('URL:', req.originalUrl);
+      console.log('Body:', req.body);
+      
       const { email, password } = req.body;
       console.log('📧 Email from request:', email);
       console.log('🔒 Password length:', password?.length);
@@ -335,16 +332,10 @@ const authController = {
       });
 
     } catch (error) {
-      console.error('💥'.repeat(20));
-      console.error("CRITICAL LOGIN ERROR:", error);
-      console.error("Error type:", error.name);
-      console.error("Error message:", error.message);
-      console.error("Error stack:", error.stack);
-      console.error('💥'.repeat(20));
+      console.error("Login error:", error);
       res.status(500).json({
         status: "error",
         message: "Login failed. Please try again.",
-        debug: process.env.NODE_ENV === 'development' ? error.message : "server error"
       });
     }
   },
@@ -633,5 +624,5 @@ const authController = {
   },
 };
 
-module.exports = authController;
+// Make sure to export the controller
 module.exports = authController;

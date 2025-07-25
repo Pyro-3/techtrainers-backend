@@ -25,10 +25,16 @@ const paymentRoutes = require('./enhancedPaymentRoutes');
 // Health check route
 router.get('/health', (req, res) => {
     res.json({
-        status: 'success',
-        message: 'TechTrainer API is running!',
+        status: 'ok',
         timestamp: new Date().toISOString(),
-        environment: process.env.NODE_ENV || 'development'
+        environment: process.env.NODE_ENV || 'development',
+        version: '1.0.0',
+        routes: {
+            auth: '/api/auth/*',
+            trainers: '/api/trainers/*',
+            chat: '/api/chat/*',
+            payments: '/api/payments/*'
+        }
     });
 });
 
@@ -70,11 +76,19 @@ router.post('/debug/login', async (req, res) => {
     }
 });
 
-// 404 handler
+// 404 handler for API routes
 router.use('*', (req, res) => {
     res.status(404).json({
         status: 'error',
-        message: `Route ${req.originalUrl} not found`
+        message: `API route ${req.originalUrl} not found`,
+        availableRoutes: [
+            'GET /api/health',
+            'POST /api/auth/login',
+            'POST /api/auth/register',
+            'GET /api/auth/me',
+            'GET /api/trainers',
+            'GET /api/payments/plans'
+        ]
     });
 });
 

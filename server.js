@@ -18,7 +18,10 @@ async function startServer() {
     const reqSanitization = require("./src/middleware/reqSanitization");
 
     // Import routes
-    const routes = require('./src/routes');
+    const authRoutes = require('./src/routes/authRoutes');
+    const trainerRoutes = require('./src/routes/trainerRoutes');
+    const chatRoutes = require('./src/routes/chatRoutes');
+    const paymentRoutes = require('./src/routes/enhancedPaymentRoutes');
 
     // Import utilities
     const DatabaseHelp = require("./src/utils/DatabaseHelp");
@@ -141,13 +144,29 @@ async function startServer() {
       });
     });
 
-    // Use API routes
-    app.use('/api', routes);
+    // Health check route (add this before other routes)
+    app.get('/api/health', (req, res) => {
+      res.json({
+        status: 'ok',
+        timestamp: new Date().toISOString(),
+        environment: process.env.NODE_ENV || 'development',
+        version: '1.0.0'
+      });
+    });
 
-    // Development routes (only in development)
-    if (process.env.NODE_ENV === "development") {
-      app.use("/api/dev", devAuthRoutes);
-    }
+    // Use API routes
+    app.use('/api/auth', authRoutes);
+    app.use('/api/trainers', trainerRoutes);
+    app.use('/api/chat', chatRoutes);
+    app.use('/api/payments', paymentRoutes);
+
+    // Catch-all for undefined routes
+    app.use('/api/*', (req, res) => {
+      res.status(404).json({
+        status: 'error',
+        message: `Route ${req.originalUrl} not found`
+      });
+    });
 
     // SMS route
     app.post("/api/send-sms", async (req, res) => {
@@ -168,27 +187,6 @@ async function startServer() {
         res.status(500).json({ success: false, error: error.message });
       }
     });
-
-    // Health check endpoint
-    app.get("/api/health", (_req, res) => {
-      res.status(200).json({
-        status: "ok",
-        timestamp: new Date().toISOString(),
-        environment: process.env.NODE_ENV || "development",
-        version: require("./package.json").version,
-      });
-    });
-
-    // 404 handler for API routes
-    app.use("/api/*", (req, res) => {
-      res.status(404).json({
-        status: "error",
-        message: `API endpoint ${req.originalUrl} not found`,
-      });
-    });
-
-    // Global error handler
-    app.use(errorHandler);
 
     const PORT = process.env.PORT || 3001;
     console.log("✅ About to start server on port:", PORT);
