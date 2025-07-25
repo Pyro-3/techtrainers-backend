@@ -208,7 +208,7 @@ const workoutController = {
 
       // Get status counts for filters
       const statusCounts = await Workout.aggregate([
-        { $match: { userId: mongoose.Types.ObjectId(userId) } },
+        { $match: { userId: new mongoose.Types.ObjectId(userId) } },
         { $group: { _id: '$status', count: { $sum: 1 } } }
       ]);
 
@@ -644,7 +644,7 @@ const workoutController = {
       const workoutsByType = await Workout.aggregate([
         {
           $match: {
-            userId: mongoose.Types.ObjectId(userId),
+            userId: new mongoose.Types.ObjectId(userId),
             status: 'completed',
             completedAt: { $gte: startDate, $lte: endDate }
           }
@@ -662,7 +662,7 @@ const workoutController = {
       const workoutsByDifficulty = await Workout.aggregate([
         {
           $match: {
-            userId: mongoose.Types.ObjectId(userId),
+            userId: new mongoose.Types.ObjectId(userId),
             status: 'completed',
             completedAt: { $gte: startDate, $lte: endDate }
           }
@@ -679,7 +679,7 @@ const workoutController = {
       const durationStats = await Workout.aggregate([
         {
           $match: {
-            userId: mongoose.Types.ObjectId(userId),
+            userId: new mongoose.Types.ObjectId(userId),
             status: 'completed',
             completedAt: { $gte: startDate, $lte: endDate }
           }
@@ -699,7 +699,7 @@ const workoutController = {
       const workoutsByDay = await Workout.aggregate([
         {
           $match: {
-            userId: mongoose.Types.ObjectId(userId),
+            userId: new mongoose.Types.ObjectId(userId),
             status: 'completed',
             completedAt: { $gte: startDate, $lte: endDate }
           }
@@ -719,7 +719,7 @@ const workoutController = {
       const workoutsByTime = await Workout.aggregate([
         {
           $match: {
-            userId: mongoose.Types.ObjectId(userId),
+            userId: new mongoose.Types.ObjectId(userId),
             status: 'completed',
             completedAt: { $gte: startDate, $lte: endDate }
           }

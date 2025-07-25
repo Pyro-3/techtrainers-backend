@@ -271,3 +271,9 @@ MongooseError: The `uri` parameter to `openUri()` must be a string, got "undefin
 2025-07-25 06:54:26 [server] [INFO]: 📚 API Documentation: http://localhost:5000/api/docs
 2025-07-25 06:54:26 [database] [INFO]: ✅ Connected to MongoDB successfully
 2025-07-25 06:54:26 [server] [INFO]: Database connected successfully
+2025-07-25 07:38:31 [database] [INFO]: 🔄 Connecting to MongoDB...
+2025-07-25 07:38:31 [server] [INFO]: 🚀 TechTrainer Server running on port 5000
+2025-07-25 07:38:31 [server] [INFO]: 🌍 Environment: development
+2025-07-25 07:38:31 [server] [INFO]: 📚 API Documentation: http://localhost:5000/api/docs
+2025-07-25 07:38:32 [database] [INFO]: ✅ Connected to MongoDB successfully
+2025-07-25 07:38:32 [server] [INFO]: Database connected successfully
