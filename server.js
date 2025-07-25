@@ -127,6 +127,9 @@ DatabaseHelp.connectDB()
     console.log("⚠️ Continuing without database connection for development...");
   });
 
+// Update MongoDB connection to use MONGO_URI instead of MONGODB_URI
+const mongoUri = process.env.MONGO_URI || process.env.MONGODB_URI || 'mongodb://localhost:27017/techtrainer';
+
 // Routes
 // Root route
 app.get("/", (_req, res) => {

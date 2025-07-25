@@ -1,8 +1,31 @@
-<<<<<<< HEAD
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
-const { ApiError } = require("./errorHandler");
-const { logAuthEvent } = require("../utils/AdvancedLogger");
+
+// Safely import optional dependencies
+let ApiError;
+let logAuthEvent;
+
+try {
+  const errorHandler = require("./errorHandler");
+  ApiError = errorHandler.ApiError;
+} catch (error) {
+  // Create a simple ApiError class if import fails
+  ApiError = class ApiError extends Error {
+    constructor(message, statusCode = 500) {
+      super(message);
+      this.statusCode = statusCode;
+      this.name = 'ApiError';
+    }
+  };
+}
+
+try {
+  const logger = require("../utils/AdvancedLogger");
+  logAuthEvent = logger.logAuthEvent;
+} catch (error) {
+  // Create a no-op function if logger import fails
+  logAuthEvent = async () => {};
+}
 
 /**
  * Main authentication middleware
@@ -24,15 +47,19 @@ const auth = async (req, res, next) => {
 
     // Check if token exists
     if (!token) {
-      await logAuthEvent(
-        "AUTH_FAILED",
-        {
-          reason: "No token provided",
-          ip: req.ip,
-          userAgent: req.get("User-Agent"),
-        },
-        req
-      );
+      try {
+        await logAuthEvent(
+          "AUTH_FAILED",
+          {
+            reason: "No token provided",
+            ip: req.ip,
+            userAgent: req.get("User-Agent"),
+          },
+          req
+        );
+      } catch (logError) {
+        console.warn("Logging failed:", logError.message);
+      }
 
       throw new ApiError(
         "Access denied. No authentication token provided",
@@ -207,76 +234,3 @@ module.exports = {
   requireAuth,
   optionalAuth,
 };
-=======
-const jwt = require('jsonwebtoken');
-const User = require('../models/User');
-
-/**
- * Basic Authentication Middleware
- * Compatible with existing auth routes
- */
-const auth = async (req, res, next) => {
-  try {
-    // Get token from header
-    const authHeader = req.header('Authorization');
-    let token;
-    
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      token = authHeader.substring(7);
-    } else {
-      token = req.header('x-auth-token');
-    }
-
-    if (!token) {
-      return res.status(401).json({
-        status: 'error',
-        message: 'No authentication token provided'
-      });
-    }
-
-    // Verify token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'techtrainer_secret');
-    
-    // Get user from database
-    const user = await User.findById(decoded.userId).select('-password');
-    
-    if (!user) {
-      return res.status(401).json({
-        status: 'error',
-        message: 'Token is not valid - user not found'
-      });
-    }
-
-    if (!user.isActive) {
-      return res.status(401).json({
-        status: 'error',
-        message: 'Account has been deactivated'
-      });
-    }
-
-    req.user = user;
-    req.token = token;
-    next();
-  } catch (error) {
-    if (error.name === 'JsonWebTokenError') {
-      return res.status(401).json({
-        status: 'error',
-        message: 'Invalid token'
-      });
-    } else if (error.name === 'TokenExpiredError') {
-      return res.status(401).json({
-        status: 'error',
-        message: 'Token has expired'
-      });
-    } else {
-      console.error('Auth middleware error:', error);
-      return res.status(500).json({
-        status: 'error',
-        message: 'Authentication error'
-      });
-    }
-  }
-};
-
-module.exports = auth;
->>>>>>> 7d6c2bb1a198b12d40463fa90c03a8d40e4ea691

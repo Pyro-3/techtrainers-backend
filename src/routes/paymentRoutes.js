@@ -1,8 +1,18 @@
 const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
-const auth = require("../middleware/auth");
-const { logger } = require("../utils/AdvancedLogger");
+const { auth } = require("../middleware/auth");
+
+// Safely import logger with fallback
+let logger;
+try {
+  logger = require("../utils/AdvancedLogger").logger;
+} catch (error) {
+  logger = {
+    logBusinessEvent: async () => {},
+    logError: async () => {}
+  };
+}
 
 // Payment Schema
 const paymentSchema = new mongoose.Schema(

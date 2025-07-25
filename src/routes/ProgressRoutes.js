@@ -1,12 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const progressController = require('../controllers/progressController');
-const { userAuth } = require('../middleware/userAuth');
+const { auth } = require('../middleware/auth');
 const { validateProgress, validateObjectId } = require('../middleware/ReqValidation');
 const { uploadProfilePicture } = require('../middleware/fileUpload');
 
 // All routes require authentication
-router.use(userAuth);
+router.use(auth);
 
 // Progress tracking
 router.post('/', validateProgress.create, progressController.createProgressEntry);

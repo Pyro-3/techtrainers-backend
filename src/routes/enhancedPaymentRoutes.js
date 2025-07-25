@@ -1,8 +1,19 @@
 const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
-const auth = require("../middleware/auth");
-const { logger } = require("../utils/AdvancedLogger");
+const { auth } = require("../middleware/auth");
+
+// Safely import logger with fallback
+let logger;
+try {
+  logger = require("../utils/AdvancedLogger").logger;
+} catch (error) {
+  // Create a no-op logger if import fails
+  logger = {
+    logBusinessEvent: async () => {},
+    logError: async () => {}
+  };
+}
 
 // Enhanced Payment Schema with Canadian focus
 const paymentSchema = new mongoose.Schema(

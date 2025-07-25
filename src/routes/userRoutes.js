@@ -1,13 +1,13 @@
 const express = require("express");
 const router = express.Router();
 const userController = require("../controllers/userController");
-const { userAuth } = require("../middleware/userAuth");
+const { auth } = require("../middleware/auth");
 const { validateUser } = require("../middleware/ReqValidation");
 const { uploadProfilePicture } = require("../middleware/fileUpload");
 const { apiLimiter } = require("../middleware/rateLimit");
 
 // All routes require authentication
-router.use(userAuth);
+router.use(auth);
 
 // Profile routes
 router.get("/profile", userController.getProfile);

@@ -1,14 +1,21 @@
 const express = require("express");
 const router = express.Router();
-const { userAuth } = require("../middleware/userAuth");
+const { auth } = require("../middleware/auth");
 const { apiLimiter } = require("../middleware/rateLimit");
 const { validate } = require("../middleware/ReqValidation");
 const Joi = require("joi");
-const Chat = require("../models/Chat");
-const { xssSanitizer } = require("../middleware/reqSanitization");
-const openAIChatbot = require("../services/OpenAIFitnessChatbot");
-const User = require("../models/User");
 const rateLimit = require("express-rate-limit");
+
+// Safely import optional dependencies
+let Chat, openAIChatbot, User, xssSanitizer;
+try {
+  Chat = require("../models/Chat");
+  openAIChatbot = require("../services/OpenAIFitnessChatbot");
+  User = require("../models/User");
+  xssSanitizer = require("../middleware/reqSanitization").xssSanitizer;
+} catch (error) {
+  console.warn("Some chat dependencies not available:", error.message);
+}
 
 /**
  * Chat Routes
@@ -43,7 +50,7 @@ const chatLimiter = rateLimit({
 // @access  Private
 router.post(
   "/message",
-  userAuth,
+  auth,
   chatLimiter,
   validate(messageSchema),
   async (req, res) => {
@@ -132,7 +139,7 @@ router.post(
 // @route   GET /api/chat/messages
 // @desc    Get chat message history
 // @access  Private
-router.get("/messages", userAuth, async (req, res) => {
+router.get("/messages", auth, async (req, res) => {
   try {
     const userId = req.user._id;
 
@@ -184,7 +191,7 @@ router.get("/messages", userAuth, async (req, res) => {
 // @route   DELETE /api/chat/messages
 // @desc    Clear chat history
 // @access  Private
-router.delete("/messages", userAuth, async (req, res) => {
+router.delete("/messages", auth, async (req, res) => {
   try {
     const userId = req.user._id;
 
@@ -212,7 +219,7 @@ router.delete("/messages", userAuth, async (req, res) => {
 // @access  Private
 router.post(
   "/feedback",
-  userAuth,
+  auth,
   validate(
     Joi.object({
       messageId: Joi.string().required(),
@@ -270,7 +277,7 @@ router.post(
 // @access  Private
 router.post(
   "/workout-suggestion",
-  userAuth,
+  auth,
   validate(
     Joi.object({
       goals: Joi.array().items(Joi.string()).optional(),
@@ -338,7 +345,7 @@ router.post(
 // @access  Private
 router.post(
   "/nutrition-advice",
-  userAuth,
+  auth,
   validate(
     Joi.object({
       goals: Joi.array().items(Joi.string()).optional(),
@@ -400,7 +407,7 @@ router.post(
 // @route   GET /api/chat/stats
 // @desc    Get chat usage statistics
 // @access  Private
-router.get("/stats", userAuth, async (req, res) => {
+router.get("/stats", auth, async (req, res) => {
   try {
     const userId = req.user._id;
     const { timeframe = "24h" } = req.query;

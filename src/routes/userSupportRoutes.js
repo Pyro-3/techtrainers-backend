@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const supportController = require("../controllers/supportController");
-const { userAuth } = require("../middleware/userAuth");
+const { auth } = require("../middleware/auth");
 const {
   validateSupportTicket,
   validateObjectId,
@@ -15,7 +15,7 @@ const { uploadWorkoutFiles } = require("../middleware/fileUpload");
  */
 
 // All routes require authentication
-router.use(userAuth);
+router.use(auth);
 
 // Create a new support ticket
 router.post(

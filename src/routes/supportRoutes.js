@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const supportController = require("../controllers/supportController");
-const { userAuth } = require("../middleware/userAuth");
+const { auth } = require("../middleware/auth");
 const {
   validateSupportTicket,
   validateObjectId,
@@ -9,7 +9,7 @@ const {
 const { apiLimiter } = require("../middleware/rateLimit");
 
 // All routes require authentication
-router.use(userAuth);
+router.use(auth);
 
 // Support tickets
 router.post(

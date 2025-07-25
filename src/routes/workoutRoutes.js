@@ -1,72 +1,61 @@
-<<<<<<< HEAD
 const express = require("express");
 const router = express.Router();
 const workoutController = require("../controllers/workoutController");
-const { userAuth, optionalAuth } = require("../middleware/userAuth");
+const { auth, optionalAuth } = require("../middleware/auth");
 const { validateObjectId } = require("../middleware/ReqValidation");
 const { apiLimiter } = require("../middleware/rateLimit");
 
-// Public routes (with optional auth for personalization)
-router.get("/", optionalAuth, workoutController.getWorkouts);
-router.get("/search", optionalAuth, workoutController.searchWorkouts);
-router.get("/categories", optionalAuth, workoutController.getWorkoutCategories);
-router.get(
-  "/:id",
-  optionalAuth,
-  validateObjectId,
-  workoutController.getWorkout
-);
+// Temporary basic route to test server startup
+router.get("/health", (req, res) => {
+  res.json({ status: "Workout routes loaded" });
+});
+
+// TODO: Uncomment these routes once workoutController methods are implemented
+// router.get("/", optionalAuth, workoutController.getWorkouts);
+// router.get("/search", optionalAuth, workoutController.searchWorkouts);
+// router.get("/categories", optionalAuth, workoutController.getWorkoutCategories);
+// router.get("/:id", optionalAuth, validateObjectId, workoutController.getWorkout);
+// router.get("/templates/public", workoutController.getPublicTemplates);
 
 // Protected routes
-router.use(userAuth);
-router.post("/", apiLimiter, workoutController.createWorkout);
-router.put("/:id", validateObjectId, workoutController.updateWorkout);
-router.delete("/:id", validateObjectId, workoutController.deleteWorkout);
+router.use(auth);
 
-// User workout interactions
-router.post(
-  "/:id/favorite",
-  validateObjectId,
-  workoutController.favoriteWorkout
-);
-router.delete(
-  "/:id/favorite",
-  validateObjectId,
-  workoutController.unfavoriteWorkout
-);
-router.post("/:id/log", validateObjectId, workoutController.logWorkout);
-router.get("/user/logs", workoutController.getUserWorkoutLogs);
-=======
-const express = require('express');
-const router = express.Router();
-const workoutController = require('../controllers/workoutController');
-const { userAuth } = require('../middleware/userAuth');
-const { validateObjectId } = require('../middleware/ReqValidation');
-const { apiLimiter } = require('../middleware/rateLimit');
+// TODO: Uncomment these routes once workoutController methods are implemented
+// router.post("/", apiLimiter, workoutController.createWorkout);
+// router.get("/user/workouts", workoutController.getUserWorkouts);
+// router.put("/:id", validateObjectId, workoutController.updateWorkout);
+// router.delete("/:id", validateObjectId, workoutController.deleteWorkout);
 
-// All routes require authentication
-router.use(userAuth);
-
-// Workout CRUD operations
-router.post('/', apiLimiter, workoutController.createWorkout);
-router.get('/', workoutController.getUserWorkouts);
-router.get('/:id', validateObjectId, workoutController.getWorkout);
-router.put('/:id', validateObjectId, workoutController.updateWorkout);
-router.delete('/:id', validateObjectId, workoutController.deleteWorkout);
-
-// Workout execution
-router.post('/:id/start', validateObjectId, workoutController.startWorkout);
-router.post('/:id/complete', validateObjectId, workoutController.completeWorkout);
-router.post('/:id/pause', validateObjectId, workoutController.pauseWorkout);
-
-// Workout sharing and templates
-router.post('/:id/share', validateObjectId, workoutController.shareWorkout);
-router.get('/templates/public', workoutController.getPublicTemplates);
-router.post('/:id/clone', validateObjectId, workoutController.cloneWorkout);
-
-// Workout statistics
-router.get('/stats/summary', workoutController.getWorkoutStats);
-router.get('/stats/progress', workoutController.getProgressStats);
->>>>>>> 7d6c2bb1a198b12d40463fa90c03a8d40e4ea691
+// Conditional routes (only if methods exist)
+if (workoutController.completeWorkout) {
+  router.post("/:id/complete", validateObjectId, workoutController.completeWorkout);
+}
+if (workoutController.pauseWorkout) {
+  router.post("/:id/pause", validateObjectId, workoutController.pauseWorkout);
+}
+if (workoutController.favoriteWorkout) {
+  router.post("/:id/favorite", validateObjectId, workoutController.favoriteWorkout);
+}
+if (workoutController.unfavoriteWorkout) {
+  router.delete("/:id/favorite", validateObjectId, workoutController.unfavoriteWorkout);
+}
+if (workoutController.logWorkout) {
+  router.post("/:id/log", validateObjectId, workoutController.logWorkout);
+}
+if (workoutController.getUserWorkoutLogs) {
+  router.get("/user/logs", workoutController.getUserWorkoutLogs);
+}
+if (workoutController.shareWorkout) {
+  router.post("/:id/share", validateObjectId, workoutController.shareWorkout);
+}
+if (workoutController.cloneWorkout) {
+  router.post("/:id/clone", validateObjectId, workoutController.cloneWorkout);
+}
+if (workoutController.getWorkoutStats) {
+  router.get("/stats/summary", workoutController.getWorkoutStats);
+}
+if (workoutController.getProgressStats) {
+  router.get("/stats/progress", workoutController.getProgressStats);
+}
 
 module.exports = router;

@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const exerciseController = require('../controllers/exerciseController');
-const { userAuth, optionalAuth } = require('../middleware/userAuth');
+const { auth, optionalAuth } = require('../middleware/auth');
 const { validateObjectId } = require('../middleware/ReqValidation');
 const { uploadExerciseImage } = require('../middleware/fileUpload');
 const { apiLimiter } = require('../middleware/rateLimit');
@@ -12,7 +12,7 @@ router.get('/search', optionalAuth, exerciseController.searchExercises);
 router.get('/:id', optionalAuth, validateObjectId, exerciseController.getExercise);
 
 // Protected routes
-router.use(userAuth);
+router.use(auth);
 router.post('/', apiLimiter, uploadExerciseImage, exerciseController.createExercise);
 router.put('/:id', validateObjectId, uploadExerciseImage, exerciseController.updateExercise);
 router.delete('/:id', validateObjectId, exerciseController.deleteExercise);

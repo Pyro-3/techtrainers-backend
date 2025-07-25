@@ -5,16 +5,39 @@
 
 const express = require("express");
 const router = express.Router();
-const {
-  logger,
-  LOG_LEVELS,
-  LOG_CATEGORIES,
-} = require("../utils/AdvancedLogger");
-const { requireAuth } = require("../middleware/auth");
-const { requireAdmin } = require("../middleware/adminAuth");
+
+// Safely import logger with fallback
+let logger, LOG_LEVELS, LOG_CATEGORIES;
+try {
+  const advancedLogger = require("../utils/AdvancedLogger");
+  logger = advancedLogger.logger;
+  LOG_LEVELS = advancedLogger.LOG_LEVELS;
+  LOG_CATEGORIES = advancedLogger.LOG_CATEGORIES;
+} catch (error) {
+  logger = {
+    getLogStats: async () => ({}),
+    getLogTrends: async () => ({}),
+    getLogs: async () => ([]),
+    getLogCount: async () => 0,
+    getSecurityLogs: async () => ([]),
+    getErrorLogs: async () => ([]),
+    getLogsByUser: async () => ([]),
+    getLogsByCategory: async () => ([]),
+    cleanup: async () => 0,
+    healthCheck: async () => ({}),
+    getMetrics: () => ({}),
+    error: () => {},
+    info: () => {}
+  };
+  LOG_LEVELS = {};
+  LOG_CATEGORIES = {};
+}
+
+const { auth } = require("../middleware/auth");
+const { adminAuth } = require("../middleware/adminAuth");
 
 // Get log statistics
-router.get("/stats", requireAuth, requireAdmin, async (req, res) => {
+router.get("/stats", auth, adminAuth, async (req, res) => {
   try {
     const { timeframe = "24h" } = req.query;
     const stats = await logger.getLogStats(timeframe);
@@ -42,7 +65,7 @@ router.get("/stats", requireAuth, requireAdmin, async (req, res) => {
 });
 
 // Get log trends
-router.get("/trends", requireAuth, requireAdmin, async (req, res) => {
+router.get("/trends", auth, adminAuth, async (req, res) => {
   try {
     const { timeframe = "24h", groupBy = "hour" } = req.query;
     const trends = await logger.getLogTrends(timeframe, groupBy);
@@ -70,7 +93,7 @@ router.get("/trends", requireAuth, requireAdmin, async (req, res) => {
 });
 
 // Get logs with filtering
-router.get("/logs", requireAuth, requireAdmin, async (req, res) => {
+router.get("/logs", auth, adminAuth, async (req, res) => {
   try {
     const {
       level,
@@ -148,7 +171,7 @@ router.get("/logs", requireAuth, requireAdmin, async (req, res) => {
 });
 
 // Get security logs
-router.get("/security", requireAuth, requireAdmin, async (req, res) => {
+router.get("/security", auth, adminAuth, async (req, res) => {
   try {
     const { limit = 100 } = req.query;
     const securityLogs = await logger.getSecurityLogs({
@@ -178,7 +201,7 @@ router.get("/security", requireAuth, requireAdmin, async (req, res) => {
 });
 
 // Get error logs
-router.get("/errors", requireAuth, requireAdmin, async (req, res) => {
+router.get("/errors", auth, adminAuth, async (req, res) => {
   try {
     const { limit = 100 } = req.query;
     const errorLogs = await logger.getErrorLogs({ limit: parseInt(limit) });
@@ -206,7 +229,7 @@ router.get("/errors", requireAuth, requireAdmin, async (req, res) => {
 });
 
 // Get logs by user
-router.get("/users/:userId", requireAuth, requireAdmin, async (req, res) => {
+router.get("/users/:userId", auth, adminAuth, async (req, res) => {
   try {
     const { userId } = req.params;
     const { limit = 50 } = req.query;
@@ -242,8 +265,8 @@ router.get("/users/:userId", requireAuth, requireAdmin, async (req, res) => {
 // Get logs by category
 router.get(
   "/categories/:category",
-  requireAuth,
-  requireAdmin,
+  auth,
+  adminAuth,
   async (req, res) => {
     try {
       const { category } = req.params;
@@ -286,7 +309,7 @@ router.get(
 );
 
 // Clean up old logs
-router.delete("/cleanup", requireAuth, requireAdmin, async (req, res) => {
+router.delete("/cleanup", auth, adminAuth, async (req, res) => {
   try {
     const { olderThan = "30d" } = req.query;
 
@@ -326,7 +349,7 @@ router.delete("/cleanup", requireAuth, requireAdmin, async (req, res) => {
 });
 
 // Get logger health check
-router.get("/health", requireAuth, requireAdmin, async (req, res) => {
+router.get("/health", auth, adminAuth, async (req, res) => {
   try {
     const health = await logger.healthCheck();
 
@@ -345,7 +368,7 @@ router.get("/health", requireAuth, requireAdmin, async (req, res) => {
 });
 
 // Get logger metrics
-router.get("/metrics", requireAuth, requireAdmin, async (req, res) => {
+router.get("/metrics", auth, adminAuth, async (req, res) => {
   try {
     const metrics = logger.getMetrics();
 
@@ -372,7 +395,7 @@ router.get("/metrics", requireAuth, requireAdmin, async (req, res) => {
 });
 
 // Get log constants (for frontend)
-router.get("/constants", requireAuth, requireAdmin, (req, res) => {
+router.get("/constants", auth, adminAuth, (req, res) => {
   res.json({
     status: "success",
     data: {
@@ -384,7 +407,7 @@ router.get("/constants", requireAuth, requireAdmin, (req, res) => {
 });
 
 // Export route with dashboard
-router.get("/dashboard", requireAuth, requireAdmin, async (req, res) => {
+router.get("/dashboard", auth, adminAuth, async (req, res) => {
   try {
     const [stats, trends, recentErrors, recentSecurity] = await Promise.all([
       logger.getLogStats("24h"),

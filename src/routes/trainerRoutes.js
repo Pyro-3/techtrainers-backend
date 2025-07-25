@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const auth = require('../middleware/auth');
+const { auth } = require('../middleware/auth');
 
 // Note: In a real app, you'd have a Trainer model
 // This is a simplified version for our prototype

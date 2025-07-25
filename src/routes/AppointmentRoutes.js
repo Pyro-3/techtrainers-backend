@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const appointmentController = require('../controllers/appointmentController');
-const { userAuth } = require('../middleware/userAuth');
+const { auth } = require('../middleware/auth');
 const { apiLimiter } = require('../middleware/rateLimit');
 const { validate } = require('../middleware/ReqValidation');
 const Joi = require('joi');
@@ -41,7 +41,7 @@ const rescheduleSchema = Joi.object({
 });
 
 // All routes require authentication
-router.use(userAuth);
+router.use(auth);
 
 // Create new appointment
 router.post(
