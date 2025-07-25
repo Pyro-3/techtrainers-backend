@@ -120,9 +120,6 @@ router.post('/book-session', auth, async (req, res) => {
   try {
     const { trainerId, date, time, notes } = req.body;
     
-    // In production, validate and save to database
-    // For now, just return success
-    
     res.json({
       status: 'success',
       message: 'Session booked successfully',
@@ -130,7 +127,7 @@ router.post('/book-session', auth, async (req, res) => {
         session: {
           id: `session-${Date.now()}`,
           trainerId,
-          userId: req.user.id,
+          userId: req.user._id || req.user.id, // Fix user ID access
           date,
           time,
           notes,

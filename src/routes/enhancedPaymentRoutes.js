@@ -339,7 +339,7 @@ router.get("/plans", async (req, res) => {
 router.post("/create-stripe-intent", auth, async (req, res) => {
   try {
     const { plan, paymentMethod = "stripe_card", billingAddress } = req.body;
-    const userId = req.user.id;
+    const userId = req.user._id || req.user.id; // Fix user ID access
 
     // Validate plan
     if (!SUBSCRIPTION_PLANS[plan]) {

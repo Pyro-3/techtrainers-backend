@@ -260,10 +260,6 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
-    lastLogin: {
-      type: Date,
-      default: Date.now,
-    },
     // Role-based access
     role: {
       type: String,
@@ -288,7 +284,7 @@ const userSchema = new mongoose.Schema(
     isApproved: {
       type: Boolean,
       default: function() {
-        return this.role === 'member'; // Members auto-approved, trainers need approval
+        return this.role !== 'trainer'; // Auto-approve non-trainers
       }
     },
     profileCompleted: {

@@ -112,6 +112,7 @@ const auth = async (req, res, next) => {
     // Attach user to request object
     req.user = user;
     req.userId = user._id;
+    req.user.id = user._id; // Add this line for frontend compatibility
 
     await logAuthEvent(
       "AUTH_SUCCESS",
