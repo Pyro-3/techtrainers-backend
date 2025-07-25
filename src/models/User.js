@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
-const validator = require("validator");
 
 const userSchema = new mongoose.Schema(
   {
@@ -15,84 +14,67 @@ const userSchema = new mongoose.Schema(
       required: [true, "Email is required"],
       unique: true,
       lowercase: true,
-      validate: [validator.isEmail, "Please provide a valid email"],
-    },
-    emailVerified: {
-      type: Boolean,
-      default: false,
-    },
-    emailVerificationToken: {
-      type: String,
-      select: false,
-    },
-    emailVerificationExpires: {
-      type: Date,
-      select: false,
-    },
-    phone: {
-      type: String,
       trim: true,
-      validate: {
-        validator: function (v) {
-          return !v || validator.isMobilePhone(v, "en-CA");
-        },
-        message: "Please provide a valid Canadian phone number",
-      },
-    },
-    phoneVerified: {
-      type: Boolean,
-      default: false,
-    },
-    phoneVerificationToken: {
-      type: String,
-      select: false,
-    },
-    phoneVerificationExpires: {
-      type: Date,
-      select: false,
+      match: [
+        /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/,
+        "Please enter a valid email",
+      ],
     },
     password: {
       type: String,
       required: [true, "Password is required"],
       minlength: [6, "Password must be at least 6 characters"],
-      select: false,
+      select: false, // Hide password by default, but allow explicit selection
+    },
+    role: {
+      type: String,
+      enum: ["member", "trainer", "admin"],
+      default: "member",
     },
     fitnessLevel: {
       type: String,
       enum: ["beginner", "intermediate", "advanced"],
       default: "beginner",
     },
-    profilePicture: {
-      url: {
-        type: String,
-        default: null,
-      },
-      publicId: {
-        type: String,
-        default: null,
-      },
-      fileName: {
-        type: String,
-        default: null,
-      },
-      uploadedAt: {
-        type: Date,
-        default: null,
+    isActive: {
+      type: Boolean,
+      default: true,
+    },
+    isApproved: {
+      type: Boolean,
+      default: function () {
+        return this.role !== "trainer"; // Auto-approve non-trainers
       },
     },
+    emailVerified: {
+      type: Boolean,
+      default: false,
+    },
+    phoneVerified: {
+      type: Boolean,
+      default: false,
+    },
+    profileCompleted: {
+      type: Boolean,
+      default: false,
+    },
+    lastLogin: {
+      type: Date,
+      default: null,
+    },
+    phone: {
+      type: String,
+      default: null,
+    },
+    // Basic profile information
     profile: {
-      age: {
-        type: Number,
-        min: [13, "Age must be at least 13"],
-        max: [120, "Age cannot exceed 120"],
-      },
-      height: {
-        type: Number,
-        min: [100, "Height must be at least 100cm"],
-      },
-      weight: {
-        type: Number,
-        min: [30, "Weight must be at least 30kg"],
+      age: { type: Number, min: 13, max: 120 },
+      weight: { type: Number, min: 30, max: 300 },
+      height: { type: Number, min: 100, max: 250 },
+      gender: {
+        type: String,
+        enum: ["male", "female", "other", "prefer_not_to_say"],
+        default: "prefer_not_to_say",
       },
       goals: [
         {
@@ -125,6 +107,7 @@ const userSchema = new mongoose.Schema(
         default: "none",
       },
     },
+    // User preferences
     preferences: {
       workoutDuration: {
         type: Number,
@@ -142,34 +125,8 @@ const userSchema = new mongoose.Schema(
         enum: ["morning", "afternoon", "evening"],
         default: "evening",
       },
-      // Email preferences for managing notifications
-      email: {
-        appointmentReminders: {
-          type: Boolean,
-          default: true,
-        },
-        promotionalEmails: {
-          type: Boolean,
-          default: true,
-        },
-        trainerUpdates: {
-          type: Boolean,
-          default: true,
-        },
-        systemNotifications: {
-          type: Boolean,
-          default: true,
-        },
-        weeklyProgressSummary: {
-          type: Boolean,
-          default: false,
-        },
-        marketingEmails: {
-          type: Boolean,
-          default: false,
-        }
-      }
     },
+    // Workout statistics
     stats: {
       totalWorkouts: {
         type: Number,
@@ -199,6 +156,7 @@ const userSchema = new mongoose.Schema(
         },
       ],
     },
+    // Subscription information
     subscription: {
       plan: {
         type: String,
@@ -216,39 +174,7 @@ const userSchema = new mongoose.Schema(
       },
       endDate: Date,
     },
-    assignedTrainer: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Trainer",
-      default: null,
-    },
-    // Authentication & Security
-    twoFactorAuth: {
-      enabled: {
-        type: Boolean,
-        default: false,
-      },
-      secret: {
-        type: String,
-        select: false,
-      },
-      backupCodes: {
-        type: [String],
-        select: false,
-      },
-      method: {
-        type: String,
-        enum: ["email", "sms", "app"],
-        default: "email",
-      },
-    },
-    passwordResetToken: {
-      type: String,
-      select: false,
-    },
-    passwordResetExpires: {
-      type: Date,
-      select: false,
-    },
+    // Security fields
     loginAttempts: {
       type: Number,
       default: 0,
@@ -256,41 +182,7 @@ const userSchema = new mongoose.Schema(
     lockUntil: {
       type: Date,
     },
-    isActive: {
-      type: Boolean,
-      default: true,
-    },
-    // Role-based access
-    role: {
-      type: String,
-      enum: ["member", "trainer", "admin"],
-      default: "member",
-    },
-    
-    // Admin protection
-    isStaticAdmin: {
-      type: Boolean,
-      default: false,
-    },
-    
-    // Auth0 integration
-    auth0Id: {
-      type: String,
-      sparse: true,
-      unique: true,
-    },
-    
-    // Trainer-specific fields
-    isApproved: {
-      type: Boolean,
-      default: function() {
-        return this.role !== 'trainer'; // Auto-approve non-trainers
-      }
-    },
-    profileCompleted: {
-      type: Boolean,
-      default: false, // Only for trainers
-    },
+    // Trainer-specific fields (only used when role is 'trainer')
     trainerProfile: {
       bio: {
         type: String,
@@ -313,15 +205,6 @@ const userSchema = new mongoose.Schema(
           ],
         },
       ],
-      certifications: [
-        {
-          name: String,
-          issuer: String,
-          dateObtained: Date,
-          expiryDate: Date,
-          certificateUrl: String,
-        },
-      ],
       experience: {
         type: Number, // Years of experience
         min: 0,
@@ -331,34 +214,6 @@ const userSchema = new mongoose.Schema(
         type: Number,
         min: 0,
       },
-      availability: {
-        days: [
-          {
-            type: String,
-            enum: [
-              "monday",
-              "tuesday",
-              "wednesday",
-              "thursday",
-              "friday",
-              "saturday",
-              "sunday",
-            ],
-          },
-        ],
-        timeSlots: [
-          {
-            start: String, // "09:00"
-            end: String, // "17:00"
-          },
-        ],
-      },
-      languages: [
-        {
-          type: String,
-          enum: ["english", "french", "spanish", "mandarin", "other"],
-        },
-      ],
       rating: {
         average: {
           type: Number,
@@ -372,11 +227,6 @@ const userSchema = new mongoose.Schema(
         },
       },
     },
-    // Static admin protection
-    isStaticAdmin: {
-      type: Boolean,
-      default: false, // Only true for the hardcoded admin account
-    },
   },
   {
     timestamps: true,
@@ -385,39 +235,55 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-// Indexes
-userSchema.index({ fitnessLevel: 1 });
-userSchema.index({ "subscription.plan": 1 });
-
 // Virtual for BMI calculation
 userSchema.virtual("profile.bmi").get(function () {
-  if (this.profile.weight && this.profile.height) {
+  if (this.profile && this.profile.weight && this.profile.height) {
     const heightInMeters = this.profile.height / 100;
     return (
       Math.round(
         (this.profile.weight / (heightInMeters * heightInMeters)) * 10
-      ) / 10
+      ) / 100
     );
   }
   return null;
 });
 
-// Pre-save middleware to hash password
+// Virtual for account lock status
+userSchema.virtual("isLocked").get(function () {
+  return !!(this.lockUntil && this.lockUntil > Date.now());
+});
+
+// Pre-save middleware to hash password (FIXED)
 userSchema.pre("save", async function (next) {
-  // Only hash the password if it's modified (or is new)
+  // Only hash the password if it has been modified (or is new)
   if (!this.isModified("password")) return next();
 
   try {
-    // Generate salt and hash
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
+    // Check if password is already hashed (starts with $2a$ or $2b$)
+    if (this.password.startsWith('$2a$') || this.password.startsWith('$2b$')) {
+      console.log('Password already hashed, skipping hash step');
+      return next();
+    }
+
+    console.log('Hashing password for user:', this.email);
+    // Hash password with cost of 12
+    this.password = await bcrypt.hash(this.password, 12);
     next();
   } catch (error) {
+    console.error('Password hashing error:', error);
     next(error);
   }
 });
 
-// Method to compare password
+// Instance method to check password
+userSchema.methods.correctPassword = async function (
+  candidatePassword,
+  userPassword
+) {
+  return await bcrypt.compare(candidatePassword, userPassword);
+};
+
+// Method to compare password (alternative name for compatibility)
 userSchema.methods.comparePassword = async function (candidatePassword) {
   try {
     return await bcrypt.compare(candidatePassword, this.password);
@@ -426,61 +292,7 @@ userSchema.methods.comparePassword = async function (candidatePassword) {
   }
 };
 
-// Email verification methods
-userSchema.methods.generateEmailVerificationToken = function () {
-  const crypto = require("crypto");
-  const token = crypto.randomBytes(32).toString("hex");
-
-  this.emailVerificationToken = crypto
-    .createHash("sha256")
-    .update(token)
-    .digest("hex");
-  this.emailVerificationExpires = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
-
-  return token;
-};
-
-userSchema.methods.verifyEmail = function () {
-  this.emailVerified = true;
-  this.emailVerificationToken = undefined;
-  this.emailVerificationExpires = undefined;
-};
-
-// Phone verification methods
-userSchema.methods.generatePhoneVerificationToken = function () {
-  const token = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit code
-
-  this.phoneVerificationToken = token;
-  this.phoneVerificationExpires = Date.now() + 15 * 60 * 1000; // 15 minutes
-
-  return token;
-};
-
-userSchema.methods.verifyPhone = function () {
-  this.phoneVerified = true;
-  this.phoneVerificationToken = undefined;
-  this.phoneVerificationExpires = undefined;
-};
-
-// Password reset methods
-userSchema.methods.generatePasswordResetToken = function () {
-  const crypto = require("crypto");
-  const token = crypto.randomBytes(32).toString("hex");
-
-  this.passwordResetToken = crypto
-    .createHash("sha256")
-    .update(token)
-    .digest("hex");
-  this.passwordResetExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
-
-  return token;
-};
-
-// Account lockout methods
-userSchema.virtual("isLocked").get(function () {
-  return !!(this.lockUntil && this.lockUntil > Date.now());
-});
-
+// Method to increment login attempts
 userSchema.methods.incLoginAttempts = function () {
   const maxAttempts = 5;
   const lockTime = 30 * 60 * 1000; // 30 minutes
@@ -500,6 +312,7 @@ userSchema.methods.incLoginAttempts = function () {
   return this.updateOne(updates);
 };
 
+// Method to reset login attempts
 userSchema.methods.resetLoginAttempts = function () {
   return this.updateOne({
     $unset: { loginAttempts: 1, lockUntil: 1 },
@@ -546,27 +359,11 @@ userSchema.methods.addPersonalRecord = function (exercise, weight, reps) {
 };
 
 // Indexes for performance
-// Note: email and auth0Id indexes are automatically created by unique: true
 userSchema.index({ role: 1 });
 userSchema.index({ isApproved: 1, role: 1 });
-userSchema.index({ "trainerProfile.specialties": 1 });
+userSchema.index({ "subscription.plan": 1 });
+userSchema.index({ fitnessLevel: 1 });
 
-// Static admin protection
-userSchema.pre('remove', function(next) {
-  if (this.isStaticAdmin) {
-    next(new Error('Cannot delete static admin account'));
-  } else {
-    next();
-  }
-});
+const User = mongoose.model("User", userSchema);
 
-userSchema.pre('findOneAndDelete', function(next) {
-  const query = this.getQuery();
-  if (query.isStaticAdmin) {
-    next(new Error('Cannot delete static admin account'));
-  } else {
-    next();
-  }
-});
-
-module.exports = mongoose.model("User", userSchema);
+module.exports = User;

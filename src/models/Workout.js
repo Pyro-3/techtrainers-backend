@@ -7,116 +7,62 @@ const workoutSchema = new mongoose.Schema({
     required: true,
     index: true
   },
-  name: {
+  title: {
     type: String,
-    required: [true, 'Workout name is required'],
+    required: true,
     trim: true,
-    maxlength: [100, 'Workout name cannot exceed 100 characters']
+    maxlength: 100
   },
   description: {
     type: String,
-    maxlength: [500, 'Description cannot exceed 500 characters']
+    maxlength: 500
   },
-  category: {
+  exercises: [{
+    exerciseId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Exercise'
+    },
+    name: String,
+    sets: { type: Number, default: 1 },
+    reps: { type: Number, default: 10 },
+    duration: { type: Number, default: 0 },
+    restTime: { type: Number, default: 60 },
+    notes: String
+  }],
+  type: {
     type: String,
-    enum: ['strength', 'cardio', 'flexibility', 'sports', 'rehabilitation', 'other'],
-    default: 'other'
+    enum: ['cardio', 'strength', 'flexibility', 'sports', 'general'],
+    default: 'general'
   },
   difficulty: {
     type: String,
     enum: ['beginner', 'intermediate', 'advanced'],
     default: 'beginner'
   },
-  duration: {
-    planned: {
-      type: Number, // in minutes
-      min: 1,
-      max: 480 // 8 hours max
-    },
-    actual: {
-      type: Number // in minutes
-    }
-  },
-  exercises: [{
-    exerciseId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Exercise',
-      required: true
-    },
-    sets: [{
-      reps: {
-        type: Number,
-        min: 0
-      },
-      weight: {
-        type: Number,
-        min: 0
-      },
-      duration: {
-        type: Number, // in seconds
-        min: 0
-      },
-      distance: {
-        type: Number, // in meters
-        min: 0
-      },
-      restTime: {
-        type: Number, // in seconds
-        default: 60
-      },
-      completed: {
-        type: Boolean,
-        default: false
-      },
-      notes: String
-    }],
-    order: {
-      type: Number,
-      default: 0
-    }
-  }],
-  tags: [{
-    type: String,
-    trim: true
-  }],
-  isTemplate: {
-    type: Boolean,
-    default: false
-  },
-  isPublic: {
-    type: Boolean,
-    default: false
+  estimatedDuration: {
+    type: Number,
+    default: 30
   },
   status: {
     type: String,
-    enum: ['planned', 'in-progress', 'completed', 'skipped'],
-    default: 'planned'
+    enum: ['not-started', 'in-progress', 'paused', 'completed', 'scheduled'],
+    default: 'not-started'
   },
-  startedAt: Date,
+  scheduledFor: Date,
   completedAt: Date,
   notes: String,
-  createdBy: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User' // For trainer-created workouts
-  },
-  isTrainerCreated: {
-    type: Boolean,
-    default: false
-  },
-  isDeleted: {
+  isPublic: {
     type: Boolean,
     default: false
   }
 }, {
-  timestamps: true
+  timestamps: true // Creates createdAt and updatedAt automatically
 });
 
-// Indexes
+// Only define indexes once - no timestamp/createdAt/updatedAt indexes
 workoutSchema.index({ userId: 1, createdAt: -1 });
 workoutSchema.index({ status: 1 });
-workoutSchema.index({ isTemplate: 1, isPublic: 1 });
-workoutSchema.index({ category: 1 });
-workoutSchema.index({ difficulty: 1 });
+workoutSchema.index({ type: 1, difficulty: 1 });
 
 // Virtual for total sets count
 workoutSchema.virtual('totalSets').get(function() {

@@ -1,0 +1,17 @@
+{
+  "liveServer.settings.port": 5000,
+  "liveServer.settings.CustomBrowser": "chrome",
+  "liveServer.settings.donotShowInfoMsg": true,
+  "workbench.colorTheme": "Default Dark+",
+  "terminal.integrated.defaultProfile.osx": "zsh",
+  "files.watcherExclude": {
+    "**/node_modules/**": true
+  },
+  "emmet.includeLanguages": {
+    "javascript": "javascriptreact"
+  },
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  }
+}

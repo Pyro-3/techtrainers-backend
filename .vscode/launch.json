@@ -1,0 +1,43 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "🚀 Launch TechTrainer Server",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/server.js",
+      "env": {
+        "NODE_ENV": "development"
+      },
+      "console": "integratedTerminal",
+      "restart": true,
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run-script",
+        "start"
+      ]
+    },
+    {
+      "name": "🌐 Open Backend in Browser",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:5000",
+      "webRoot": "${workspaceFolder}",
+      "userDataDir": "${workspaceFolder}/.vscode/chrome-debug"
+    },
+    {
+      "name": "🔧 Open API Docs",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:5000/api/docs",
+      "webRoot": "${workspaceFolder}"
+    },
+    {
+      "name": "🧪 Test API Endpoints",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:5000/api/health",
+      "webRoot": "${workspaceFolder}"
+    }
+  ]
+}

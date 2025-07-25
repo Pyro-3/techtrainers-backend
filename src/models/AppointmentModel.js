@@ -30,48 +30,19 @@ const appointmentSchema = new mongoose.Schema({
     enum: ['pending', 'confirmed', 'cancelled', 'completed'],
     default: 'pending'
   },
-  notes: {
-    type: String,
-    maxlength: 500
-  },
-  meetingLink: {
-    type: String,
-    // Only for online appointments
-  },
-  meetingId: {
-    type: String,
-    // Teams or other platform meeting ID
-  },
-  location: {
-    // For in-person appointments
-    address: String,
-    city: String,
-    state: String,
-    zipCode: String
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now
-  },
-  updatedAt: {
-    type: Date,
-    default: Date.now
-  },
-  cancelledAt: Date,
+  notes: String,
+  location: String,
+  meetingLink: String,
+  meetingId: String,
   cancelReason: String,
-  reminderSent: {
-    type: Boolean,
-    default: false
-  }
+  cancelledAt: Date
 }, {
-  timestamps: true
+  timestamps: true // Creates createdAt and updatedAt automatically
 });
 
-// Indexes for efficient querying
+// Only define indexes once - remove any timestamp, createdAt, updatedAt indexes
 appointmentSchema.index({ userId: 1, date: 1 });
 appointmentSchema.index({ trainerId: 1, date: 1 });
-appointmentSchema.index({ status: 1, date: 1 });
+appointmentSchema.index({ status: 1 });
 
-const Appointment = mongoose.model('Appointment', appointmentSchema);
-
-module.exports = Appointment;
+module.exports = mongoose.model('Appointment', appointmentSchema);

@@ -1,0 +1,32 @@
+### Test server health
+GET http://localhost:5000/api/health
+
+### Register new user
+POST http://localhost:5000/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "Test User",
+  "email": "test@example.com",
+  "password": "password123",
+  "fitnessLevel": "beginner"
+}
+
+### Login user
+POST http://localhost:5000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "password123"
+}
+
+### Get user profile (replace TOKEN with actual token)
+GET http://localhost:5000/api/auth/me
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### Get trainers
+GET http://localhost:5000/api/trainers
+
+### Get subscription plans
+GET http://localhost:5000/api/payments/plans?province=ON

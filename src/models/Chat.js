@@ -6,7 +6,6 @@ const chatSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
-      index: true,
     },
     sender: {
       type: String,
@@ -16,51 +15,26 @@ const chatSchema = new mongoose.Schema(
     content: {
       type: String,
       required: true,
-      maxlength: 1000,
-    },
-    timestamp: {
-      type: Date,
-      default: Date.now,
+      maxlength: 2000,
     },
     messageType: {
       type: String,
-      enum: ["regular", "workout_suggestion", "nutrition_advice", "system"],
-      default: "regular",
-    },
-    feedback: {
-      rating: {
-        type: Number,
-        min: 1,
-        max: 5,
-      },
-      comment: {
-        type: String,
-        maxlength: 500,
-      },
-      timestamp: {
-        type: Date,
-      },
+      enum: ["text", "workout_suggestion", "nutrition_advice"],
+      default: "text",
     },
     metadata: {
-      tokensUsed: Number,
-      aiModel: String,
-      responseTime: Number,
-      userContext: {
-        fitnessLevel: String,
-        subscriptionPlan: String,
-        goals: [String],
-      },
+      type: mongoose.Schema.Types.Mixed,
+      default: {},
     },
   },
   {
-    timestamps: true,
+    timestamps: true, // This creates createdAt and updatedAt automatically
   }
 );
 
-// Indexes for performance
+// Only define indexes once - remove any timestamp, createdAt, updatedAt indexes
 chatSchema.index({ userId: 1, createdAt: -1 });
-chatSchema.index({ userId: 1, sender: 1 });
-chatSchema.index({ userId: 1, messageType: 1 });
+chatSchema.index({ sender: 1 });
 
 // Methods
 chatSchema.methods.toClientFormat = function () {

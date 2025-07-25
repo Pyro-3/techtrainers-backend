@@ -114,9 +114,29 @@ const userController = {
         });
       }
 
-      return res.status(200).json({
+      res.json({
         status: "success",
-        data: updatedUser,
+        data: {
+          user: {
+            _id: updatedUser._id,
+            id: updatedUser._id,
+            name: updatedUser.name,
+            email: updatedUser.email,
+            role: updatedUser.role,
+            fitnessLevel: updatedUser.fitnessLevel,
+            profile: updatedUser.profile,
+            preferences: updatedUser.preferences,
+            stats: updatedUser.stats,
+            subscription: updatedUser.subscription,
+            isApproved: updatedUser.isApproved,
+            isActive: updatedUser.isActive,
+            emailVerified: updatedUser.emailVerified,
+            phoneVerified: updatedUser.phoneVerified,
+            profileCompleted: updatedUser.profileCompleted,
+            createdAt: updatedUser.createdAt,
+            lastLogin: updatedUser.lastLogin,
+          },
+        },
         message: "User profile updated successfully",
       });
     } catch (error) {

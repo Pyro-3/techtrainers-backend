@@ -277,3 +277,39 @@ MongooseError: The `uri` parameter to `openUri()` must be a string, got "undefin
 2025-07-25 07:38:31 [server] [INFO]: 📚 API Documentation: http://localhost:5000/api/docs
 2025-07-25 07:38:32 [database] [INFO]: ✅ Connected to MongoDB successfully
 2025-07-25 07:38:32 [server] [INFO]: Database connected successfully
+2025-07-25 11:18:53 [database] [INFO]: 🔄 Connecting to MongoDB...
+2025-07-25 11:18:53 [server] [INFO]: 🚀 TechTrainer Server running on port 5000
+2025-07-25 11:18:53 [server] [INFO]: 🌍 Environment: development
+2025-07-25 11:18:53 [server] [INFO]: 📚 API Documentation: http://localhost:5000/api/docs
+2025-07-25 11:18:54 [database] [INFO]: ✅ Connected to MongoDB successfully
+2025-07-25 11:18:54 [server] [INFO]: Database connected successfully
+2025-07-25 11:21:22 [database] [INFO]: 🔄 Connecting to MongoDB...
+2025-07-25 11:21:22 [server] [INFO]: 🚀 TechTrainer Server running on port 5000
+2025-07-25 11:21:22 [server] [INFO]: 🌍 Environment: development
+2025-07-25 11:21:22 [server] [INFO]: 📚 API Documentation: http://localhost:5000/api/docs
+2025-07-25 11:21:23 [database] [INFO]: ✅ Connected to MongoDB successfully
+2025-07-25 11:21:23 [server] [INFO]: Database connected successfully
+2025-07-25 11:21:48 [database] [INFO]: 🔄 Connecting to MongoDB...
+2025-07-25 11:21:48 [server] [INFO]: 🚀 TechTrainer Server running on port 5000
+2025-07-25 11:21:48 [server] [INFO]: 🌍 Environment: development
+2025-07-25 11:21:48 [server] [INFO]: 📚 API Documentation: http://localhost:5000/api/docs
+2025-07-25 11:21:48 [database] [INFO]: ✅ Connected to MongoDB successfully
+2025-07-25 11:21:48 [server] [INFO]: Database connected successfully
+2025-07-25 11:23:06 [database] [INFO]: 🔄 Connecting to MongoDB...
+2025-07-25 11:23:07 [server] [INFO]: 🚀 TechTrainer Server running on port 5000
+2025-07-25 11:23:07 [server] [INFO]: 🌍 Environment: development
+2025-07-25 11:23:07 [server] [INFO]: 📚 API Documentation: http://localhost:5000/api/docs
+2025-07-25 11:23:07 [database] [INFO]: ✅ Connected to MongoDB successfully
+2025-07-25 11:23:07 [server] [INFO]: Database connected successfully
+2025-07-25 11:26:26 [database] [INFO]: 🔄 Connecting to MongoDB...
+2025-07-25 11:26:26 [server] [INFO]: 🚀 TechTrainer Server running on port 5000
+2025-07-25 11:26:26 [server] [INFO]: 🌍 Environment: development
+2025-07-25 11:26:26 [server] [INFO]: 📚 API Documentation: http://localhost:5000/api/docs
+2025-07-25 11:26:27 [database] [INFO]: ✅ Connected to MongoDB successfully
+2025-07-25 11:26:27 [server] [INFO]: Database connected successfully
+2025-07-25 11:28:27 [database] [INFO]: 🔄 Connecting to MongoDB...
+2025-07-25 11:28:28 [server] [INFO]: 🚀 TechTrainer Server running on port 5000
+2025-07-25 11:28:28 [server] [INFO]: 🌍 Environment: development
+2025-07-25 11:28:28 [server] [INFO]: 📚 API Documentation: http://localhost:5000/api/docs
+2025-07-25 11:28:28 [database] [INFO]: ✅ Connected to MongoDB successfully
+2025-07-25 11:28:28 [server] [INFO]: Database connected successfully

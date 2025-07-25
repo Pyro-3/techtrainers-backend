@@ -6,7 +6,11 @@ const { auth } = require("../middleware/auth");
 // Safely import logger with fallback
 let logger;
 try {
-  logger = require("../utils/AdvancedLogger").logger;
+  const advancedLogger = require("../utils/AdvancedLogger");
+  logger = {
+    logBusinessEvent: advancedLogger.logBusinessEvent || (() => {}),
+    logError: advancedLogger.logError || (() => {})
+  };
 } catch (error) {
   // Create a no-op logger if import fails
   logger = {
@@ -408,7 +412,6 @@ router.post("/create-stripe-intent", auth, async (req, res) => {
     await payment.save();
 
     // Here you would integrate with Stripe API
-    // For now, we'll simulate a payment intent
     const paymentIntent = {
       id: payment._id,
       amount: Math.round(taxInfo.totalAmount * 100), // Convert to cents
@@ -422,7 +425,7 @@ router.post("/create-stripe-intent", auth, async (req, res) => {
       },
     };
 
-    await logger.logBusinessEvent("info", "Stripe payment intent created", {
+    await logger.logBusinessEvent("Stripe payment intent created", {
       paymentId: payment._id,
       userId,
       plan,
@@ -451,7 +454,7 @@ router.post("/create-stripe-intent", auth, async (req, res) => {
     console.error("Create Stripe payment intent error:", error);
     await logger.logError("Failed to create Stripe payment intent", {
       error: error.message,
-      userId: req.user?.id,
+      userId: req.user?._id || req.user?.id,
       stack: error.stack,
     });
 

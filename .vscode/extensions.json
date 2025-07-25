@@ -1,0 +1,12 @@
+{
+    "recommendations": [
+        "ms-vscode.vscode-json",
+        "ritwickdey.liveserver",
+        "ms-vscode.js-debug",
+        "humao.rest-client",
+        "ms-vscode.simple-browser",
+        "bradlc.vscode-tailwindcss",
+        "esbenp.prettier-vscode",
+        "ms-vscode.vscode-typescript-next"
+    ]
+}

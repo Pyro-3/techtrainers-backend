@@ -12,7 +12,7 @@ try {
     findOne: async () => null,
     findById: async () => null,
     findByIdAndUpdate: async () => null,
-    save: async () => {},
+    save: async () => { },
   };
 }
 
@@ -44,15 +44,15 @@ try {
 
 try {
   const advancedLogger = require("../utils/AdvancedLogger");
-  logBusinessEvent = advancedLogger.logBusinessEvent || (() => {});
-  logError = advancedLogger.logError || (() => {});
-  logAuthEvent = advancedLogger.logAuthEvent || (() => {});
-  logSecurityEvent = advancedLogger.logSecurityEvent || (() => {});
-  logEmailOperation = advancedLogger.logEmailOperation || (() => {});
-  logSmsOperation = advancedLogger.logSmsOperation || (() => {});
+  logBusinessEvent = advancedLogger.logBusinessEvent || (() => { });
+  logError = advancedLogger.logError || (() => { });
+  logAuthEvent = advancedLogger.logAuthEvent || (() => { });
+  logSecurityEvent = advancedLogger.logSecurityEvent || (() => { });
+  logEmailOperation = advancedLogger.logEmailOperation || (() => { });
+  logSmsOperation = advancedLogger.logSmsOperation || (() => { });
   logger = advancedLogger.logger || console;
 } catch (error) {
-  logBusinessEvent = logError = logAuthEvent = logSecurityEvent = logEmailOperation = logSmsOperation = () => {};
+  logBusinessEvent = logError = logAuthEvent = logSecurityEvent = logEmailOperation = logSmsOperation = () => { };
   logger = console;
 }
 
@@ -101,15 +101,13 @@ const authController = {
       // Set user role
       const userRole = role === "trainer" ? "trainer" : "member";
 
-      // Hash password
-      const salt = await bcrypt.genSalt(12);
-      const hashedPassword = await bcrypt.hash(password, salt);
+      console.log('Creating user with password length:', password.length);
 
-      // Create new user
+      // Create new user (password will be hashed by pre-save middleware)
       const user = new User({
         name,
         email: email.toLowerCase(),
-        password: hashedPassword,
+        password, // Let the pre-save middleware handle hashing
         fitnessLevel: fitnessLevel || "beginner",
         role: userRole,
         isActive: true,
@@ -119,6 +117,7 @@ const authController = {
       });
 
       await user.save();
+      console.log('User created successfully');
 
       // Generate JWT token
       const token = jwt.sign(
@@ -143,7 +142,7 @@ const authController = {
             isActive: user.isActive,
           }
         },
-        message: userRole === "trainer" 
+        message: userRole === "trainer"
           ? "Trainer account created! Please wait for approval."
           : "Account created successfully!",
       });
@@ -159,28 +158,124 @@ const authController = {
 
   login: async (req, res) => {
     try {
+      console.log('='.repeat(50));
+      console.log('🔑 LOGIN ATTEMPT STARTED');
+      console.log('Environment:', process.env.NODE_ENV);
+      console.log('Time:', new Date().toISOString());
+      console.log('Request IP:', req.ip);
+      console.log('User Agent:', req.get('User-Agent'));
+      console.log('='.repeat(50));
+
       const { email, password } = req.body;
+      console.log('📧 Email from request:', email);
+      console.log('🔒 Password length:', password?.length);
+      console.log('🔒 Password provided:', !!password);
 
       // Validate required fields
       if (!email || !password) {
+        console.log('❌ VALIDATION FAILED: Missing email or password');
+        console.log('Email present:', !!email);
+        console.log('Password present:', !!password);
         return res.status(400).json({
           status: "error",
           message: "Please provide email and password",
         });
       }
 
-      // Find user by email
-      const user = await User.findOne({ email: email.toLowerCase() });
+      const searchEmail = email.toLowerCase();
+      console.log('🔍 Searching for email:', searchEmail);
+
+      // Find user by email - explicitly include password field
+      console.log('📡 Starting database query...');
+      const user = await User.findOne({ email: searchEmail }).select("+password");
+      console.log('📡 Database query completed');
+
       if (!user) {
+        console.log('❌ USER NOT FOUND in database');
+        console.log('Searched email:', searchEmail);
+
+        // Let's also check if user exists without password selection
+        const userCheck = await User.findOne({ email: searchEmail });
+        console.log('User exists without password select:', !!userCheck);
+        if (userCheck) {
+          console.log('User ID:', userCheck._id);
+          console.log('User name:', userCheck.name);
+          console.log('User role:', userCheck.role);
+        }
+
         return res.status(401).json({
           status: "error",
           message: "Invalid email or password",
         });
       }
 
-      // Verify password
-      const isPasswordValid = await bcrypt.compare(password, user.password);
+      console.log('✅ USER FOUND!');
+      console.log('User ID:', user._id);
+      console.log('User email:', user.email);
+      console.log('User name:', user.name);
+      console.log('User role:', user.role);
+      console.log('Has password field:', !!user.password);
+      console.log('Password length:', user.password?.length);
+      console.log('Password format valid:', user.password?.startsWith('$2'));
+      console.log('User active:', user.isActive);
+      console.log('User approved:', user.isApproved);
+
+      // Check if user has a password (important check)
+      if (!user.password) {
+        console.error("❌ CRITICAL: User found but no password field");
+        console.error("This suggests password was not selected properly");
+        return res.status(401).json({
+          status: "error",
+          message: "Invalid email or password",
+        });
+      }
+
+      console.log('🔐 Starting bcrypt password comparison...');
+      console.log('Input password length:', password.length);
+      console.log('Stored password hash (first 20 chars):', user.password.substring(0, 20));
+
+      // Verify password with additional validation and detailed logging
+      let isPasswordValid = false;
+      try {
+        console.log('🔐 Calling bcrypt.compare...');
+        const startTime = Date.now();
+        isPasswordValid = await bcrypt.compare(password, user.password);
+        const endTime = Date.now();
+        console.log('🔐 bcrypt.compare completed in', endTime - startTime, 'ms');
+        console.log('🔐 Password comparison result:', isPasswordValid);
+
+        // Additional verification with manual test
+        if (!isPasswordValid) {
+          console.log('🔍 DEBUGGING: Manual password test...');
+          try {
+            const manualTest = await bcrypt.compare('test123', user.password);
+            console.log('Manual test with "test123":', manualTest);
+            const manualTest2 = await bcrypt.compare('test123456', user.password);
+            console.log('Manual test with "test123456":', manualTest2);
+          } catch (manualError) {
+            console.log('Manual test error:', manualError.message);
+          }
+        }
+
+      } catch (bcryptError) {
+        console.error("❌ BCRYPT ERROR:", bcryptError);
+        console.error("Error type:", bcryptError.name);
+        console.error("Error message:", bcryptError.message);
+        console.error("Error stack:", bcryptError.stack);
+        return res.status(500).json({
+          status: "error",
+          message: "Authentication error. Please try again.",
+          debug: process.env.NODE_ENV === 'development' ? bcryptError.message : "bcrypt error"
+        });
+      }
+
       if (!isPasswordValid) {
+        console.log('❌ PASSWORD INVALID');
+        console.log('This means the user exists but password doesn\'t match');
+        console.log('Possible causes:');
+        console.log('1. Wrong password provided');
+        console.log('2. Password was double-hashed during registration');
+        console.log('3. Different bcrypt version/settings');
         return res.status(401).json({
           status: "error",
           message: "Invalid email or password",
@@ -189,11 +284,14 @@ const authController = {
 
       // Check if user is active
       if (user.isActive === false) {
+        console.log('❌ USER ACCOUNT DEACTIVATED');
         return res.status(401).json({
           status: "error",
           message: "Account has been deactivated",
         });
       }
+
+      console.log('✅ ALL CHECKS PASSED - GENERATING TOKEN');
 
       // Generate JWT token
       const token = jwt.sign(
@@ -202,13 +300,19 @@ const authController = {
         { expiresIn: "7d" }
       );
 
+      console.log('✅ TOKEN GENERATED SUCCESSFULLY');
+
       // Update last login
       try {
         user.lastLogin = new Date();
         await user.save();
+        console.log('✅ LAST LOGIN UPDATED');
       } catch (saveError) {
-        console.warn("Failed to update last login:", saveError.message);
+        console.warn("⚠️ Failed to update last login:", saveError.message);
       }
+
+      console.log('🎉 LOGIN SUCCESSFUL FOR:', user.email);
+      console.log('='.repeat(50));
 
       // Return success response
       res.json({
@@ -231,10 +335,16 @@ const authController = {
       });
 
     } catch (error) {
-      console.error("Login error:", error);
+      console.error('💥'.repeat(20));
+      console.error("CRITICAL LOGIN ERROR:", error);
+      console.error("Error type:", error.name);
+      console.error("Error message:", error.message);
+      console.error("Error stack:", error.stack);
+      console.error('💥'.repeat(20));
       res.status(500).json({
         status: "error",
         message: "Login failed. Please try again.",
+        debug: process.env.NODE_ENV === 'development' ? error.message : "server error"
       });
     }
   },
@@ -467,7 +577,7 @@ const authController = {
   getAuthStatus: async (req, res) => {
     try {
       const user = await User.findById(req.user._id).select("-password");
-      
+
       if (!user) {
         return res.status(404).json({
           status: "error",
@@ -523,4 +633,5 @@ const authController = {
   },
 };
 
+module.exports = authController;
 module.exports = authController;
