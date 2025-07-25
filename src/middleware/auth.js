@@ -47,24 +47,10 @@ const auth = async (req, res, next) => {
 
     // Check if token exists
     if (!token) {
-      try {
-        await logAuthEvent(
-          "AUTH_FAILED",
-          {
-            reason: "No token provided",
-            ip: req.ip,
-            userAgent: req.get("User-Agent"),
-          },
-          req
-        );
-      } catch (logError) {
-        console.warn("Logging failed:", logError.message);
-      }
-
-      throw new ApiError(
-        "Access denied. No authentication token provided",
-        401
-      );
+      return res.status(401).json({
+        status: "error",
+        message: "Access denied. No authentication token provided",
+      });
     }
 
     // Verify token
@@ -78,68 +64,28 @@ const auth = async (req, res, next) => {
 
     // Check if user exists
     if (!user) {
-      await logAuthEvent(
-        "AUTH_FAILED",
-        {
-          reason: "User not found",
-          userId: decoded.userId,
-          ip: req.ip,
-          userAgent: req.get("User-Agent"),
-        },
-        req
-      );
-
-      throw new ApiError("User not found", 401);
+      return res.status(401).json({
+        status: "error",
+        message: "User not found",
+      });
     }
 
     // Check if user is active
-    if (!user.isActive) {
-      await logAuthEvent(
-        "AUTH_FAILED",
-        {
-          reason: "Account deactivated",
-          userId: user._id,
-          email: user.email,
-          ip: req.ip,
-          userAgent: req.get("User-Agent"),
-        },
-        req
-      );
-
-      throw new ApiError("Account has been deactivated", 401);
+    if (user.isActive === false) {
+      return res.status(401).json({
+        status: "error",
+        message: "Account has been deactivated",
+      });
     }
 
-    // Attach user to request object
+    // Attach user to request object with both _id and id for compatibility
     req.user = user;
+    req.user.id = user._id; // Add id field for frontend compatibility
     req.userId = user._id;
-    req.user.id = user._id; // Add this line for frontend compatibility
-
-    await logAuthEvent(
-      "AUTH_SUCCESS",
-      {
-        userId: user._id,
-        email: user.email,
-        role: user.role,
-        ip: req.ip,
-        userAgent: req.get("User-Agent"),
-      },
-      req
-    );
 
     next();
   } catch (error) {
     if (error.name === "JsonWebTokenError") {
-      await logAuthEvent(
-        "AUTH_FAILED",
-        {
-          reason: "Invalid token",
-          error: error.message,
-          ip: req.ip,
-          userAgent: req.get("User-Agent"),
-        },
-        req
-      );
-
       return res.status(401).json({
         status: "error",
         message: "Invalid authentication token",
@@ -147,32 +93,12 @@ const auth = async (req, res, next) => {
     }
 
     if (error.name === "TokenExpiredError") {
-      await logAuthEvent(
-        "AUTH_FAILED",
-        {
-          reason: "Token expired",
-          error: error.message,
-          ip: req.ip,
-          userAgent: req.get("User-Agent"),
-        },
-        req
-      );
-
       return res.status(401).json({
         status: "error",
         message: "Authentication token has expired",
       });
     }
 
-    // Handle custom API errors
-    if (error instanceof ApiError) {
-      return res.status(error.statusCode).json({
-        status: "error",
-        message: error.message,
-      });
-    }
-
-    // Handle unexpected errors
     console.error("Auth middleware error:", error);
     return res.status(500).json({
       status: "error",
@@ -232,6 +158,6 @@ const requireAuth = auth;
 
 module.exports = {
   auth,
-  requireAuth,
+  requireAuth: auth,
   optionalAuth,
 };
