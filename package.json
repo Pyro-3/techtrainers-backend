@@ -40,15 +40,11 @@
   "author": "TechTrainer Team",
   "license": "MIT",
   "dependencies": {
-<<<<<<< HEAD
-    "axios": "^1.10.0",
-    "axios-retry": "^4.5.0",
-=======
     "@azure/msal-node": "^3.6.3",
     "aws-sdk": "^2.1692.0",
     "axios": "^1.10.0",
+    "axios-retry": "^4.5.0",
     "bcrypt": "^6.0.0",
->>>>>>> 7d6c2bb1a198b12d40463fa90c03a8d40e4ea691
     "bcryptjs": "^2.4.3",
     "cloudinary": "^1.41.0",
     "cors": "^2.8.5",
