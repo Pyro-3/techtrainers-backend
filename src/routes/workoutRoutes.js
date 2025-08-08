@@ -10,23 +10,39 @@ router.get("/health", (req, res) => {
   res.json({ status: "Workout routes loaded" });
 });
 
-// TODO: Uncomment these routes once workoutController methods are implemented
-// router.get("/", optionalAuth, workoutController.getWorkouts);
-// router.get("/search", optionalAuth, workoutController.searchWorkouts);
-// router.get("/categories", optionalAuth, workoutController.getWorkoutCategories);
-// router.get("/:id", optionalAuth, validateObjectId, workoutController.getWorkout);
-// router.get("/templates/public", workoutController.getPublicTemplates);
+// Public routes (no auth required) - static routes first
+router.get("/", optionalAuth, workoutController.getWorkouts);
+router.get("/search", optionalAuth, workoutController.searchWorkouts);
+router.get("/categories", optionalAuth, workoutController.getWorkoutCategories);
+router.get("/templates/public", workoutController.getPublicTemplates);
+
+// Public dynamic routes
+router.get("/:id", optionalAuth, validateObjectId, workoutController.getWorkout);
 
 // Protected routes
 router.use(auth);
 
-// TODO: Uncomment these routes once workoutController methods are implemented
-// router.post("/", apiLimiter, workoutController.createWorkout);
-// router.get("/user/workouts", workoutController.getUserWorkouts);
-// router.put("/:id", validateObjectId, workoutController.updateWorkout);
-// router.delete("/:id", validateObjectId, workoutController.deleteWorkout);
+// Protected static routes (must come before protected dynamic /:id routes)
+router.get("/user/workouts", workoutController.getUserWorkouts);
+if (workoutController.getUserWorkoutLogs) {
+  router.get("/user/logs", workoutController.getUserWorkoutLogs);
+}
+if (workoutController.getWorkoutStats) {
+  router.get("/stats/summary", workoutController.getWorkoutStats);
+}
+if (workoutController.getProgressStats) {
+  router.get("/stats/progress", workoutController.getProgressStats);
+}
+
+// Other protected routes
+router.post("/", apiLimiter, workoutController.createWorkout);
+router.put("/:id", validateObjectId, workoutController.updateWorkout);
+router.delete("/:id", validateObjectId, workoutController.deleteWorkout);
 
 // Conditional routes (only if methods exist)
+if (workoutController.startWorkout) {
+  router.post("/:id/start", validateObjectId, workoutController.startWorkout);
+}
 if (workoutController.completeWorkout) {
   router.post("/:id/complete", validateObjectId, workoutController.completeWorkout);
 }
@@ -50,12 +66,6 @@ if (workoutController.shareWorkout) {
 }
 if (workoutController.cloneWorkout) {
   router.post("/:id/clone", validateObjectId, workoutController.cloneWorkout);
-}
-if (workoutController.getWorkoutStats) {
-  router.get("/stats/summary", workoutController.getWorkoutStats);
-}
-if (workoutController.getProgressStats) {
-  router.get("/stats/progress", workoutController.getProgressStats);
 }
 
 module.exports = router;

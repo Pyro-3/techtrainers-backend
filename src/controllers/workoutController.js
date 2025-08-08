@@ -8,6 +8,12 @@ const mongoose = require('mongoose');
 const workoutController = {
   createWorkout: async (req, res) => {
     try {
+      if (!req.user) {
+        return res.status(401).json({
+          status: 'error',
+          message: 'Authentication required to create a workout'
+        });
+      }
       const userId = req.user._id;
       const {
         title,
@@ -110,7 +116,7 @@ const workoutController = {
         difficulty: difficulty || req.user.fitnessLevel || 'beginner',
         estimatedDuration: estimatedDuration || calculateEstimatedDuration(validatedExercises),
         scheduledFor: scheduledFor ? new Date(scheduledFor) : null,
-        status: scheduledFor ? 'scheduled' : 'in-progress',
+        status: scheduledFor ? 'scheduled' : 'not-started',
         notes: notes || ''
       });
 
@@ -132,7 +138,7 @@ const workoutController = {
 
   getWorkouts: async (req, res) => {
     try {
-      const userId = req.user._id;
+      const userId = req.user ? req.user._id : null;
       const {
         status,
         type,
@@ -147,24 +153,13 @@ const workoutController = {
       } = req.query;
 
       // Build filter object
-      const filter = { userId };
-
-      // Add status filter if provided
-      if (status) {
-        filter.status = status;
+      const filter = {};
+      if (userId) {
+        filter.userId = userId;
       }
-
-      // Add type filter if provided
-      if (type) {
-        filter.type = type;
-      }
-
-      // Add difficulty filter if provided
-      if (difficulty) {
-        filter.difficulty = difficulty;
-      }
-
-      // Add search functionality for title or description
+      if (status) filter.status = status;
+      if (type) filter.type = type;
+      if (difficulty) filter.difficulty = difficulty;
       if (search) {
         filter.$or = [
           { title: { $regex: search, $options: 'i' } },
@@ -172,52 +167,31 @@ const workoutController = {
           { notes: { $regex: search, $options: 'i' } }
         ];
       }
-
-      // Add date range filter
       if (startDate || endDate) {
         filter.createdAt = {};
-        
-        if (startDate) {
-          filter.createdAt.$gte = new Date(startDate);
-        }
-        
-        if (endDate) {
-          filter.createdAt.$lte = new Date(endDate);
-        }
+        if (startDate) filter.createdAt.$gte = new Date(startDate);
+        if (endDate) filter.createdAt.$lte = new Date(endDate);
       }
-
-      // Determine sort direction
       const sortDirection = sortOrder === 'desc' ? -1 : 1;
-      
-      // Create sort object
       const sort = {};
       sort[sortBy] = sortDirection;
-
-      // Calculate pagination parameters
       const skip = (parseInt(page) - 1) * parseInt(limit);
       const parsedLimit = parseInt(limit);
-
-      // Execute query with filters, sorting, and pagination
       const workouts = await Workout.find(filter)
         .sort(sort)
         .skip(skip)
         .limit(parsedLimit);
-
-      // Get total count for pagination info
       const total = await Workout.countDocuments(filter);
-
-      // Get status counts for filters
-      const statusCounts = await Workout.aggregate([
-        { $match: { userId: new mongoose.Types.ObjectId(userId) } },
-        { $group: { _id: '$status', count: { $sum: 1 } } }
-      ]);
-
-      // Format status counts
-      const statusCountsObj = {};
-      statusCounts.forEach(item => {
-        statusCountsObj[item._id] = item.count;
-      });
-
+      let statusCountsObj = {};
+      if (userId) {
+        const statusCounts = await Workout.aggregate([
+          { $match: { userId: new mongoose.Types.ObjectId(userId) } },
+          { $group: { _id: '$status', count: { $sum: 1 } } }
+        ]);
+        statusCounts.forEach(item => {
+          statusCountsObj[item._id] = item.count;
+        });
+      }
       return res.status(200).json({
         status: 'success',
         data: {
@@ -245,20 +219,19 @@ const workoutController = {
 
   getWorkout: async (req, res) => {
     try {
-      const userId = req.user._id;
       const { id } = req.params;
-
-      // Validate ID format
       if (!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(400).json({
           status: 'error',
           message: 'Invalid workout ID format'
         });
       }
-
-      // Find workout by ID and ensure it belongs to the current user
-      const workout = await Workout.findOne({ _id: id, userId });
-
+      let workout;
+      if (req.user) {
+        workout = await Workout.findOne({ _id: id, userId: req.user._id });
+      } else {
+        workout = await Workout.findOne({ _id: id });
+      }
       if (!workout) {
         return res.status(404).json({
           status: 'error',
@@ -322,6 +295,12 @@ const workoutController = {
 
   updateWorkout: async (req, res) => {
     try {
+      if (!req.user) {
+        return res.status(401).json({
+          status: 'error',
+          message: 'Authentication required to update a workout'
+        });
+      }
       const userId = req.user._id;
       const { id } = req.params;
       const updateData = req.body;
@@ -442,6 +421,12 @@ const workoutController = {
 
   deleteWorkout: async (req, res) => {
     try {
+      if (!req.user) {
+        return res.status(401).json({
+          status: 'error',
+          message: 'Authentication required to delete a workout'
+        });
+      }
       const userId = req.user._id;
       const { id } = req.params;
 
@@ -482,6 +467,12 @@ const workoutController = {
 
   completeWorkout: async (req, res) => {
     try {
+      if (!req.user) {
+        return res.status(401).json({
+          status: 'error',
+          message: 'Authentication required to complete a workout'
+        });
+      }
       const userId = req.user._id;
       const { id } = req.params;
       const { 
@@ -561,17 +552,23 @@ const workoutController = {
       );
 
       // Create a progress entry for this workout
-      const progressEntry = new Progress({
+      const progressData = {
         userId,
         date: new Date(),
         workoutId: id,
         workoutDuration: duration || workout.estimatedDuration,
         caloriesBurned: caloriesBurned || 0,
         notes: `Completed workout: ${workout.title}`,
-        workoutRating: rating || 0,
         workoutType: workout.type,
         workoutDifficulty: workout.difficulty
-      });
+      };
+
+      // Only add workoutRating if a valid rating (1-5) is provided
+      if (rating && rating >= 1 && rating <= 5) {
+        progressData.workoutRating = rating;
+      }
+
+      const progressEntry = new Progress(progressData);
 
       await progressEntry.save();
 
@@ -591,6 +588,12 @@ const workoutController = {
 
   getWorkoutStats: async (req, res) => {
     try {
+      if (!req.user) {
+        return res.status(401).json({
+          status: 'error',
+          message: 'Authentication required to get workout stats'
+        });
+      }
       const userId = req.user._id;
       const { timeframe = '30days' } = req.query;
 
@@ -814,6 +817,12 @@ const workoutController = {
 
   startWorkout: async (req, res) => {
     try {
+      if (!req.user) {
+        return res.status(401).json({
+          status: 'error',
+          message: 'Authentication required to start a workout'
+        });
+      }
       const userId = req.user._id;
       const workoutId = req.params.id;
 
@@ -845,6 +854,12 @@ const workoutController = {
 
   pauseWorkout: async (req, res) => {
     try {
+      if (!req.user) {
+        return res.status(401).json({
+          status: 'error',
+          message: 'Authentication required to pause a workout'
+        });
+      }
       const userId = req.user._id;
       const workoutId = req.params.id;
 
@@ -876,6 +891,12 @@ const workoutController = {
 
   shareWorkout: async (req, res) => {
     try {
+      if (!req.user) {
+        return res.status(401).json({
+          status: 'error',
+          message: 'Authentication required to share a workout'
+        });
+      }
       const userId = req.user._id;
       const workoutId = req.params.id;
       const { isPublic } = req.body;
@@ -946,6 +967,12 @@ const workoutController = {
 
   cloneWorkout: async (req, res) => {
     try {
+      if (!req.user) {
+        return res.status(401).json({
+          status: 'error',
+          message: 'Authentication required to clone a workout'
+        });
+      }
       const userId = req.user._id;
       const workoutId = req.params.id;
 
@@ -987,6 +1014,12 @@ const workoutController = {
 
   getProgressStats: async (req, res) => {
     try {
+      if (!req.user) {
+        return res.status(401).json({
+          status: 'error',
+          message: 'Authentication required to get progress stats'
+        });
+      }
       const userId = req.user._id;
       const { timeframe = '30' } = req.query;
       const days = parseInt(timeframe);
@@ -1024,6 +1057,58 @@ const workoutController = {
       return res.status(500).json({
         status: 'error',
         message: error.message || 'Failed to retrieve progress statistics'
+      });
+    }
+  },
+
+  // Add missing methods that are referenced in routes
+  searchWorkouts: async (req, res) => {
+    try {
+      const { q, type, difficulty } = req.query;
+      const filter = {};
+      if (req.user) {
+        filter.userId = req.user._id;
+      }
+      if (q) {
+        filter.$or = [
+          { title: { $regex: q, $options: 'i' } },
+          { description: { $regex: q, $options: 'i' } }
+        ];
+      }
+      if (type) filter.type = type;
+      if (difficulty) filter.difficulty = difficulty;
+      const workouts = await Workout.find(filter).limit(20);
+      return res.status(200).json({
+        status: 'success',
+        data: workouts
+      });
+    } catch (error) {
+      return res.status(500).json({
+        status: 'error',
+        message: error.message || 'Failed to search workouts'
+      });
+    }
+  },
+
+  getWorkoutCategories: async (req, res) => {
+    try {
+      const categories = [
+        { id: 'strength', name: 'Strength Training', icon: 'dumbbell' },
+        { id: 'cardio', name: 'Cardio', icon: 'heart' },
+        { id: 'flexibility', name: 'Flexibility', icon: 'stretch' },
+        { id: 'mixed', name: 'Mixed', icon: 'activity' }
+      ];
+      
+      return res.status(200).json({
+        status: 'success',
+        data: categories,
+        message: 'Categories retrieved successfully'
+      });
+    } catch (error) {
+      console.error('Error in getWorkoutCategories:', error);
+      return res.status(500).json({
+        status: 'error',
+        message: 'Failed to retrieve categories'
       });
     }
   }

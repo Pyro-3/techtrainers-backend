@@ -119,6 +119,7 @@ router.get('/:id', async (req, res) => {
 router.post('/book-session', auth, async (req, res) => {
   try {
     const { trainerId, date, time, notes } = req.body;
+    const userId = req.user._id || req.user.id;
     
     res.json({
       status: 'success',
@@ -127,7 +128,7 @@ router.post('/book-session', auth, async (req, res) => {
         session: {
           id: `session-${Date.now()}`,
           trainerId,
-          userId: req.user._id || req.user.id, // Fix user ID access
+          userId: userId.toString(),
           date,
           time,
           notes,

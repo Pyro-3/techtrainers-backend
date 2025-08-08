@@ -1,0 +1,13 @@
+⚠️ Twilio credentials not found. SMS features will be disabled.
+Please set TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, and TWILIO_PHONE_NUMBER environment variables
+⚠️ OpenAI API key not found. Chat features will be disabled.
+Please set OPENAI_API_KEY environment variable to enable AI chat features.
+(node:91212) [MONGOOSE] Warning: Duplicate schema index on {"email":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:91212) [MONGOOSE] Warning: Duplicate schema index on {"timestamp":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+✅ Connected to MongoDB
+🚀 Server running on port 5000
+📍 Health check: http://localhost:5000/api/health
+🌐 Environment: development
+SIGTERM received
+MongoDB connection closed

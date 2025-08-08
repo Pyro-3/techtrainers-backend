@@ -162,7 +162,7 @@ const authController = {
       console.log('Method:', req.method);
       console.log('URL:', req.originalUrl);
       console.log('Body:', req.body);
-      
+
       const { email, password } = req.body;
       console.log('📧 Email from request:', email);
       console.log('🔒 Password length:', password?.length);
@@ -342,37 +342,46 @@ const authController = {
 
   getMe: async (req, res) => {
     try {
-      const user = req.user;
-
+      const userId = req.user._id || req.user.id;
+      
+      const user = await User.findById(userId).select('-password');
+      
       if (!user) {
         return res.status(404).json({
-          status: "error",
-          message: "User not found",
+          status: 'error',
+          message: 'User not found'
         });
       }
 
       res.json({
-        status: "success",
+        status: 'success',
         data: {
-          _id: user._id,
-          id: user._id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-          fitnessLevel: user.fitnessLevel,
-          isApproved: user.isApproved,
-          isActive: user.isActive,
-          emailVerified: user.emailVerified,
-          phoneVerified: user.phoneVerified,
-          createdAt: user.createdAt,
-          lastLogin: user.lastLogin,
-        },
+          user: {
+            _id: user._id,
+            id: user._id, // Include both for compatibility
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            fitnessLevel: user.fitnessLevel,
+            isApproved: user.isApproved,
+            isActive: user.isActive,
+            emailVerified: user.emailVerified,
+            phoneVerified: user.phoneVerified,
+            profileCompleted: user.profileCompleted,
+            stats: user.stats,
+            profile: user.profile,
+            preferences: user.preferences,
+            subscription: user.subscription,
+            createdAt: user.createdAt,
+            lastLogin: user.lastLogin
+          }
+        }
       });
     } catch (error) {
-      console.error("GetMe error:", error);
+      console.error('Get me error:', error);
       res.status(500).json({
-        status: "error",
-        message: "Failed to retrieve user data",
+        status: 'error',
+        message: 'Failed to get user data'
       });
     }
   },

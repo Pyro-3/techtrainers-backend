@@ -343,7 +343,7 @@ router.get("/plans", async (req, res) => {
 router.post("/create-stripe-intent", auth, async (req, res) => {
   try {
     const { plan, paymentMethod = "stripe_card", billingAddress } = req.body;
-    const userId = req.user._id || req.user.id; // Fix user ID access
+    const userId = req.user._id || req.user.id;
 
     // Validate plan
     if (!SUBSCRIPTION_PLANS[plan]) {
@@ -370,8 +370,8 @@ router.post("/create-stripe-intent", auth, async (req, res) => {
     const province = billingAddress?.province || "ON";
     const taxInfo = calculateCanadianTaxes(planDetails.price, province);
 
-    // Get user details
-    const User = mongoose.model("User");
+    // Get user details - ensure we use proper model reference
+    const User = require("../models/User");
     const user = await User.findById(userId);
 
     if (!user) {
@@ -427,7 +427,7 @@ router.post("/create-stripe-intent", auth, async (req, res) => {
 
     await logger.logBusinessEvent("Stripe payment intent created", {
       paymentId: payment._id,
-      userId,
+      userId: userId.toString(),
       plan,
       amount: planDetails.price,
       totalAmount: taxInfo.totalAmount,
@@ -454,7 +454,7 @@ router.post("/create-stripe-intent", auth, async (req, res) => {
     console.error("Create Stripe payment intent error:", error);
     await logger.logError("Failed to create Stripe payment intent", {
       error: error.message,
-      userId: req.user?._id || req.user?.id,
+      userId: (req.user?._id || req.user?.id)?.toString(),
       stack: error.stack,
     });
 

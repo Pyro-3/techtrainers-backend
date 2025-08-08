@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node server.js",
     "build": "echo \"No build step needed for backend\"",
-    "dev": "nodemon server.js",
+    "dev": "concurrently \"npm start\" \"cd client && npm run dev\"",
+    "dev:install": "npm install && cd client && npm install",
     "dev:debug": "nodemon --inspect server.js",
     "test": "jest",
     "test:watch": "jest --watch",
@@ -80,6 +81,7 @@
     "xss": "^1.0.14"
   },
   "devDependencies": {
+    "concurrently": "^7.6.0",
     "eslint": "^8.57.0",
     "jest": "^29.7.0",
     "nodemon": "^3.0.2",

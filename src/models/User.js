@@ -66,6 +66,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    profilePicture: {
+      type: String,
+      default: null,
+    },
     // Basic profile information
     profile: {
       age: { type: Number, min: 13, max: 120 },
@@ -253,14 +257,14 @@ userSchema.virtual("isLocked").get(function () {
   return !!(this.lockUntil && this.lockUntil > Date.now());
 });
 
-// Pre-save middleware to hash password (FIXED)
+// Pre-save middleware to hash password (ENHANCED)
 userSchema.pre("save", async function (next) {
   // Only hash the password if it has been modified (or is new)
   if (!this.isModified("password")) return next();
 
   try {
     // Check if password is already hashed (starts with $2a$ or $2b$)
-    if (this.password.startsWith('$2a$') || this.password.startsWith('$2b$')) {
+    if (this.password && (this.password.startsWith('$2a$') || this.password.startsWith('$2b$'))) {
       console.log('Password already hashed, skipping hash step');
       return next();
     }
@@ -358,11 +362,13 @@ userSchema.methods.addPersonalRecord = function (exercise, weight, reps) {
   return this.save();
 };
 
-// Indexes for performance
+// Additional indexes for performance
+userSchema.index({ email: 1 });
 userSchema.index({ role: 1 });
 userSchema.index({ isApproved: 1, role: 1 });
 userSchema.index({ "subscription.plan": 1 });
 userSchema.index({ fitnessLevel: 1 });
+userSchema.index({ isActive: 1 });
 
 const User = mongoose.model("User", userSchema);
 
