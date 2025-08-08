@@ -90,4 +90,12 @@ export const chatAPI = {
   getMessages: (params?: any) => api.get('/chat/messages', { params })
 };
 
+// Stats API
+export const statsAPI = {
+  getUserStats: () => api.get('/users/user-stats'),
+  addUserStat: (statData: { type: string; value: number; unit: string; notes?: string }) => 
+    api.post('/users/stats', statData),
+  deleteUserStat: (id: string) => api.delete(`/users/stats/${id}`)
+};
+
 export default api;
