@@ -30,12 +30,13 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSignupClick 
 
   // Redirect user to last visited page or home after login
   useEffect(() => {
-    if (user) {
+    if (user && isOpen) {
       const lastPage = sessionStorage.getItem('lastPage') || '/';
+      console.log('User logged in, closing modal and redirecting to:', lastPage);
       onClose();
       navigate(lastPage);
     }
-  }, [user, navigate, onClose]);
+  }, [user, isOpen, navigate, onClose]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

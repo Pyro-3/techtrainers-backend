@@ -72,7 +72,7 @@ const Header = () => {
                   <div className="absolute right-0 mt-2 w-48 bg-white border border-stone-200 rounded-md shadow-lg py-1 z-50">
                     <Link to="/profile" className="block px-4 py-2 text-sm hover:bg-stone-100" onClick={() => setShowUserMenu(false)}>My Profile</Link>
                     <Link to="/dashboard" className="block px-4 py-2 text-sm hover:bg-stone-100" onClick={() => setShowUserMenu(false)}>Dashboard</Link>
-                    <Link to="/fitness" className="block px-4 py-2 text-sm hover:bg-stone-100" onClick={() => setShowUserMenu(false)}>Fitness Tracker</Link>
+                    <Link to="/progress" className="block px-4 py-2 text-sm hover:bg-stone-100" onClick={() => setShowUserMenu(false)}>Fitness Tracker</Link>
                     <Link to="/dashboard" className="block px-4 py-2 text-sm hover:bg-stone-100" onClick={() => setShowUserMenu(false)}>
                         My Workouts
                       </Link>
@@ -118,7 +118,7 @@ const Header = () => {
               <>
                 <Link to="/profile" className="block text-stone-700 hover:text-stone-900">My Profile</Link>
                 <Link to="/dashboard" className="block text-stone-700 hover:text-stone-900">Dashboard</Link>
-                <Link to="/fitness" className="block text-stone-700 hover:text-stone-900">Fitness Tracker</Link>
+                <Link to="/progress" className="block text-stone-700 hover:text-stone-900">Fitness Tracker</Link>
                 <Link to="/dashboard" className="block text-stone-700 hover:text-stone-900">
                     My Workouts
                   </Link>
@@ -136,10 +136,7 @@ const Header = () => {
       <SignupModal isOpen={showSignupModal} onClose={() => setShowSignupModal(false)} />
       <LoginModal 
         isOpen={showLoginModal} 
-        onClose={() => {
-          console.log('Closing login modal');
-          setShowLoginModal(false);
-        }} 
+        onClose={() => setShowLoginModal(false)} 
         onSignupClick={() => {
           setShowLoginModal(false);
           setShowSignupModal(true);
